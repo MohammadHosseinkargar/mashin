@@ -19,7 +19,7 @@ export function HeroScene({ rate }: { rate: number }) {
         className="relative z-10"
       >
         <div className="animate-float">
-          <HeroCarArt spin className="w-full" />
+          <HeroCarArt spin className="w-full drop-shadow-[0_30px_50px_rgba(0,0,0,.7)]" />
         </div>
       </motion.div>
 

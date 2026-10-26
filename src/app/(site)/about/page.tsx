@@ -4,7 +4,7 @@ import { Reveal, Stagger, StaggerItem } from "@/components/motion";
 import { LinkButton, SectionTitle } from "@/components/ui";
 import { Faq } from "@/components/faq";
 
-export const metadata: Metadata = { title: "درباره ما", description: "با مستقر خودرو و روش شفاف ما در واردات خودرو از امارات آشنا شوید." };
+export const metadata: Metadata = { title: "درباره ما", description: "با ترنم شرق چابهار و روش شفاف ما در واردات خودرو از امارات آشنا شوید." };
 
 const VALUES = [
   { icon: Eye, title: "شفافیت", text: "همه‌ی هزینه‌ها پیش از خرید روی میز است؛ هیچ هزینه‌ی پنهانی وجود ندارد." },
@@ -23,7 +23,7 @@ export default function AboutPage() {
   return (
     <div className="mx-auto max-w-5xl px-4 pt-32 sm:px-6 sm:pt-40">
       <Reveal>
-        <SectionTitle eyebrow="درباره ما" title={<>واردات خودرو، <span className="gradient-text">بدون ابهام</span></>} text="مستقر خودرو با یک هدف ساده شکل گرفت: خرید خودرو از امارات باید به اندازه‌ی خرید از یک نمایشگاه معتبر، شفاف و قابل‌اعتماد باشد." />
+        <SectionTitle eyebrow="درباره ما" title={<>واردات خودرو، <span className="gradient-text">بدون ابهام</span></>} text="ترنم شرق چابهار، از چابهار، با یک هدف ساده شکل گرفت: خرید خودرو از امارات باید به اندازه‌ی خرید از یک نمایشگاه معتبر، شفاف و قابل‌اعتماد باشد." />
       </Reveal>
       <Reveal delay={0.1}>
         <p className="mb-14 max-w-3xl leading-9 text-muted">ما فرایند انتخاب، بازرسی، خرید، حمل و ترخیص را برای شما مدیریت می‌کنیم و قیمت نهایی را با نرخ روز و تمام هزینه‌ها، از همان ابتدا نشان می‌دهیم تا تصمیم‌گیری برایتان ساده و بی‌دغدغه باشد.</p>

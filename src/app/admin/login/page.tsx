@@ -42,7 +42,7 @@ function LoginForm() {
       className="glass relative w-full max-w-md space-y-5 rounded-[2rem] p-8 shadow-2xl"
     >
       <div className="flex flex-col items-center gap-3 pb-2 text-center">
-        <Logo title="مستقر خودرو" />
+        <Logo title="ترنم شرق چابهار" />
         <p className="text-sm text-muted">برای ورود به پنل مدیریت، اطلاعات خود را وارد کنید.</p>
       </div>
       <label className="block space-y-2"><span className="text-sm text-muted">نام کاربری</span>

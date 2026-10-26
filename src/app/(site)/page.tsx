@@ -10,7 +10,7 @@ import { ConsultForm } from "@/components/consult-form";
 const STEPS = [
   { icon: Search, title: "انتخاب خودرو", text: "از کاتالوگ خودروی مدنظرتان را انتخاب کنید یا مشخصاتش را به ما بگویید." },
   { icon: Calculator, title: "استعلام قیمت شفاف", text: "قیمت نهایی را با نرخ روز و تمام هزینه‌ها پیش از هر اقدامی می‌بینید." },
-  { icon: Ship, title: "خرید و حمل", text: "بازرسی، خرید امن و حمل بیمه‌شده تا بندر مقصد را ما انجام می‌دهیم." },
+  { icon: Ship, title: "خرید و حمل", text: "بازرسی، خرید امن و حمل بیمه‌شده از امارات تا بندر چابهار را ما انجام می‌دهیم." },
   { icon: FileCheck2, title: "ترخیص و تحویل", text: "مراحل ترخیص و مستندسازی را پیگیری و خودرو را تحویل شما می‌دهیم." },
 ];
 const BENEFITS = [
@@ -37,13 +37,13 @@ export default async function HomePage() {
         <div className="absolute -top-40 end-[-10%] -z-10 size-[620px] rounded-full bg-sky/15 blur-[130px]" />
         <div className="mx-auto grid max-w-7xl items-center gap-14 px-4 sm:px-6 lg:grid-cols-[1.05fr_1fr]">
           <div className="space-y-7">
-            <Reveal><span className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-4 py-1.5 text-sm font-semibold text-gold"><Sparkles className="size-4" />واردات هوشمند خودرو از امارات</span></Reveal>
+            <Reveal><span className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-4 py-1.5 text-sm font-semibold text-gold"><Sparkles className="size-4" />واردات خودرو از امارات، از چابهار</span></Reveal>
             <Reveal delay={0.1}>
               <h1 className="text-4xl font-black leading-[1.35] sm:text-5xl lg:text-[3.6rem]">
                 خودروی رویایی‌ات را <span className="gradient-text">شفاف و مطمئن</span><br />از امارات وارد کن
               </h1>
             </Reveal>
-            <Reveal delay={0.2}><p className="max-w-xl text-lg leading-9 text-muted">قیمت نهایی را همین حالا با نرخ روز و تمام هزینه‌های واردات ببین؛ از انتخاب تا ترخیص، همراهت هستیم.</p></Reveal>
+            <Reveal delay={0.2}><p className="max-w-xl text-lg leading-9 text-muted">قیمت نهایی را همین حالا با نرخ روز و تمام هزینه‌های واردات ببین؛ از انتخاب تا ترخیص، ترنم شرق چابهار همراهت است.</p></Reveal>
             <Reveal delay={0.3}>
               <div className="flex flex-wrap gap-3">
                 <LinkButton href="/catalog" size="lg">مشاهده‌ی کاتالوگ<ArrowLeft className="size-5" /></LinkButton>
@@ -121,7 +121,7 @@ export default async function HomePage() {
 
       {/* BENEFITS */}
       <section className="mx-auto mt-28 max-w-7xl px-4 sm:px-6">
-        <Reveal><SectionTitle center eyebrow="چرا مستقر خودرو" title="خرید با خیال راحت" /></Reveal>
+        <Reveal><SectionTitle center eyebrow="چرا ترنم شرق چابهار" title="خرید با خیال راحت" /></Reveal>
         <Stagger className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {BENEFITS.map((b) => (
             <StaggerItem key={b.title} className="glass group rounded-3xl p-6 transition-all duration-500 hover:-translate-y-1.5 hover:border-gold/40">

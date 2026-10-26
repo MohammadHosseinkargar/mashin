@@ -5,9 +5,9 @@ import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
-  title: { default: "مستقر خودرو | واردات خودرو از امارات به ایران", template: "%s | مستقر خودرو" },
-  description: "خرید و واردات خودرو از امارات با قیمت نهایی شفاف، محاسبه‌ی لحظه‌ای هزینه‌ها و پشتیبانی کامل تا ترخیص.",
-  openGraph: { type: "website", locale: "fa_IR", siteName: "مستقر خودرو" },
+  title: { default: "ترنم شرق چابهار | واردات خودرو از امارات، از چابهار تا سراسر ایران", template: "%s | ترنم شرق چابهار" },
+  description: "خرید و واردات خودرو از امارات با قیمت نهایی شفاف، محاسبه‌ی لحظه‌ای هزینه‌ها و پشتیبانی کامل تا ترخیص؛ از مجموعه‌ی ترنم شرق چابهار.",
+  openGraph: { type: "website", locale: "fa_IR", siteName: "ترنم شرق چابهار" },
 };
 
 export const viewport: Viewport = { themeColor: "#070a12", width: "device-width", initialScale: 1 };
