@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "exchange-rate:update": "node -e \"import('./src/lib/exchange-rate-updater.ts').then(m => m.updateExchangeRate()).then(r => console.log(JSON.stringify(r, null, 2))).catch(e => console.error(e))\"",
+    "exchange-rate:worker": "node scripts/exchange-rate-worker.js"
   },
   "dependencies": {
     "@fontsource-variable/vazirmatn": "^5.2.5",
