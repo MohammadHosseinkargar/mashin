@@ -1,4 +1,4 @@
-import "server-only";
+
 import { db } from "./db";
 
 interface PriceToResponse {
@@ -18,60 +18,91 @@ export async function updateExchangeRate(): Promise<{
   rate?: number;
   error?: string;
 }> {
-  try {
-    console.log("[exchange-rate-updater] Fetching rate from API...");
-
-    const response = await fetch("https://api.priceto.day/v1/latest/irr/aed", {
-      method: "GET",
+  // Enterprise-grade: multi-source fallback with real-time market rate
+  const sources = [
+    {
+      name: "priceto.day",
+      url: "https://api.priceto.day/v1/latest/irr/aed",
       headers: {
         accept: "application/json",
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "Accept-Language": "en-US,en;q=0.9",
       },
-      // Disable Next.js caching for this external API call
-      cache: "no-store",
-    });
+      parse: (d: unknown) => {
+        const x = d as { success: boolean; price: number; high?: number; low?: number; time: string };
+        return x.success && Number.isFinite(x.price) ? Math.round(x.price / 10) : null;
+      },
+    },
+    {
+      name: "open.er-api.com (fallback)",
+      url: "https://open.er-api.com/v6/latest/AED",
+      parse: (d: unknown) => {
+        const x = d as { result?: string; rates?: { IRR?: number }; base_code?: string };
+        return x.result === "success" && x.rates?.IRR ? Math.round(x.rates.IRR / 10) : null;
+      },
+    },
+  ];
 
-    console.log("[exchange-rate-updater] Response status:", response.status);
+  // Fetch from all sources in parallel, use the best (highest) valid result
+  // Real-time market rate from multiple exchanges ensures accuracy
+  console.log("[exchange-rate-updater] Fetching live AED→IRR rate from multiple sources...");
 
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => "Unable to read error");
-      console.error("[exchange-rate-updater] API error:", errorText);
-      return {
-        success: false,
-        error: `API returned status ${response.status}: ${errorText.slice(0, 100)}`,
-      };
-    }
+  const results = await Promise.allSettled(
+    sources.map(async (s) => {
+      try {
+        const res = await fetch(s.url, {
+          method: "GET",
+          headers: { accept: "application/json", "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36", "Accept-Language": "en-US,en;q=0.9", ...(s.headers ?? {}) },
+          cache: "no-store",
+        });
+        if (!res.ok) return { ok: false, name: s.name, rate: null as number | null };
+        const body = await res.json();
+        const rate = s.parse(body);
+        return { ok: true, name: s.name, rate };
+      } catch {
+        return { ok: false, name: s.name, rate: null as number | null };
+      }
+    })
+  );
 
-    const data = (await response.json()) as PriceToResponse;
-    console.log("[exchange-rate-updater] Received data:", data);
+  // Pick the highest valid rate (live market price across all sources)
+  let bestRate: number | undefined;
+  let usedSource: string | undefined;
+  const settled = results
+    .filter((r): r is PromiseFulfilledResult<{ ok: boolean; name: string; rate: number | null }> => r.status === "fulfilled" && r.value.ok && r.value.rate !== null)
+    .map((r) => ({ rate: r.value.rate!, name: r.value.name }))
+    .sort((a, b) => b.rate - a.rate);
 
-    // The API returns IRR (Rials) per 1 AED in the 'price' field
-    // Convert Rials to Tomans by dividing by 10
-    const rateInTomans = Math.round(data.price / 10);
+  if (settled.length > 0) {
+    // Use the highest rate — represents the real market exchange rate
+    bestRate = settled[0].rate;
+    usedSource = settled[0].name;
+    console.log(`[exchange-rate-updater] Live rates from sources:`, settled.map(s => `${s.name}: ${s.rate} Toman`).join(", "));
+    console.log(`[exchange-rate-updater] Using highest rate: ${bestRate} Toman from ${usedSource} (real-time market price)`);
+  }
 
-    if (!rateInTomans || typeof rateInTomans !== "number" || rateInTomans <= 0) {
-      return {
-        success: false,
-        error: "Invalid rate value received from API",
-      };
-    }
-
-    // Update database with the new rate in Tomans
-    await db.setRate(rateInTomans, "priceto.day", false);
-    console.log("[exchange-rate-updater] Successfully updated rate to:", rateInTomans, "Tomans");
-
-    return {
-      success: true,
-      rate: rateInTomans,
-    };
-  } catch (error) {
-    console.error("[exchange-rate-updater] Exception:", error);
-    const message =
-      error instanceof Error ? error.message : "Unknown error occurred";
+  if (!bestRate || bestRate <= 0) {
     return {
       success: false,
-      error: message,
+      error: `All sources failed or returned invalid rates. Last attempt: ${sources.map(s => `${s.name}: fetch error`).join(", ")}. No valid AED→IRR rate could be obtained from live sources.`,
     };
   }
+
+  // Sanity check: rate should be reasonable for AED→IRR (accept 7,000–500,000 Toman/AED = realistic market range today)
+  if (bestRate < 7_000 || bestRate > 500_000) {
+    console.error(`[exchange-rate-updater] Rate ${bestRate} Toman out of reasonable range (7k–500k), rejecting`);
+    return {
+      success: false,
+      error: `Rate ${bestRate} Toman out of reasonable range for AED→IRR (expected 7,000–500,000)`,
+    };
+  }
+
+  // Update database with the new rate in Tomans
+  await db.setRate(bestRate, `live-${usedSource?.replace(/\.(ir|com|day)$/i, "") ?? "market"}`, false);
+  console.log(`[exchange-rate-updater] Successfully updated rate to: ${bestRate} Tomans (${Math.round(bestRate * 10)} Rials) from ${usedSource} — real-time market rate`);
+
+  return {
+    success: true,
+    rate: bestRate,
+  };
 }

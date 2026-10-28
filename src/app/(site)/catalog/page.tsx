@@ -18,6 +18,24 @@ type SP = Record<string, string | string[] | undefined>;
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) || undefined;
 const int = (v: string | string[] | undefined) => { const n = Number(one(v)); return Number.isFinite(n) && n > 0 ? Math.floor(n) : undefined; };
 
+/** با هزاران صفحه، فقط صفحه‌های نزدیکِ جاری (به‌همراه اول و آخر) نمایش داده می‌شوند. */
+function pageWindow(current: number, total: number): Array<number | "gap"> {
+  if (total <= 9) return Array.from({ length: total }, (_, i) => i + 1);
+  const keep = new Set<number>();
+  for (const p of [1, 2, total - 1, total, current - 2, current - 1, current, current + 1, current + 2]) {
+    if (p >= 1 && p <= total) keep.add(p);
+  }
+  const sorted = [...keep].sort((a, b) => a - b);
+  const out: Array<number | "gap"> = [];
+  let prev = 0;
+  for (const p of sorted) {
+    if (prev && p - prev > 1) out.push("gap");
+    out.push(p);
+    prev = p;
+  }
+  return out;
+}
+
 export default async function CatalogPage({ searchParams }: { searchParams: Promise<SP> }) {
   const sp = await searchParams;
   const page = int(sp.page) ?? 1;
@@ -25,7 +43,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
   const query: VehicleQuery = {
     publishedOnly: true,
     search: one(sp.search), brand: one(sp.brand), fuelType: one(sp.fuelType), transmission: one(sp.transmission), status: one(sp.status),
-    yearMin: int(sp.yearMin), yearMax: int(sp.yearMax), priceMin: int(sp.priceMin), priceMax: int(sp.priceMax),
+    yearMin: int(sp.yearMin) ?? 2023, yearMax: int(sp.yearMax), priceMin: int(sp.priceMin), priceMax: int(sp.priceMax),
     sort: (["price_asc", "price_desc", "year_desc", "mileage_asc"].includes(sort ?? "") ? sort : "newest") as VehicleQuery["sort"],
     limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE,
   };
@@ -58,9 +76,13 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
       {pages > 1 && (
         <nav aria-label="صفحه‌بندی" className="mt-12 flex items-center justify-center gap-2">
           <Link aria-disabled={page <= 1} href={href(Math.max(1, page - 1))} className={cn("grid size-11 place-items-center rounded-xl border border-line transition hover:border-gold/50", page <= 1 && "pointer-events-none opacity-40")}><ChevronRight className="size-5" /></Link>
-          {Array.from({ length: pages }, (_, i) => i + 1).map((p) => (
-            <Link key={p} href={href(p)} aria-current={p === page ? "page" : undefined} className={cn("grid size-11 place-items-center rounded-xl border text-sm font-bold transition", p === page ? "border-transparent bg-gradient-to-br from-gold to-amber text-[#1a1204]" : "border-line text-muted hover:border-gold/50 hover:text-ink")}>{toFa(p)}</Link>
-          ))}
+          {pageWindow(page, pages).map((p, i) =>
+            p === "gap" ? (
+              <span key={`gap-${i}`} aria-hidden className="grid size-11 place-items-center text-muted">…</span>
+            ) : (
+              <Link key={p} href={href(p)} aria-current={p === page ? "page" : undefined} className={cn("grid size-11 place-items-center rounded-xl border text-sm font-bold transition", p === page ? "border-transparent bg-gradient-to-br from-gold to-amber text-[#1a1204]" : "border-line text-muted hover:border-gold/50 hover:text-ink")}>{toFa(p)}</Link>
+            )
+          )}
           <Link aria-disabled={page >= pages} href={href(Math.min(pages, page + 1))} className={cn("grid size-11 place-items-center rounded-xl border border-line transition hover:border-gold/50", page >= pages && "pointer-events-none opacity-40")}><ChevronLeft className="size-5" /></Link>
         </nav>
       )}

@@ -15,7 +15,7 @@ export const GET = route(async (req) => {
     fuelType: sp.get("fuelType") ?? undefined,
     transmission: sp.get("transmission") ?? undefined,
     status: sp.get("status") ?? undefined,
-    yearMin: intOr(sp.get("yearMin")),
+    yearMin: intOr(sp.get("yearMin")) ?? 2023,
     yearMax: intOr(sp.get("yearMax")),
     priceMin: intOr(sp.get("priceMin")),
     priceMax: intOr(sp.get("priceMax")),

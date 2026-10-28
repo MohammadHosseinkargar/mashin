@@ -74,6 +74,14 @@ export interface ImportSettings {
   enabled: boolean;
   lastSyncAt: string | null;
   lastError: string | null;
+  /** شماره‌ی صفحه‌ای که دسته‌ی بعد از آن ادامه می‌دهد (چرخه‌ی کامل همه‌ی صفحه‌ها) */
+  cursorPage: number;
+  /** تعداد کل صفحه‌های نتایج؛ ۰ یعنی نامشخص */
+  totalPages: number;
+  /** مجموع نتایج جست‌وجو در Dubicars؛ ۰ یعنی نامشخص */
+  totalResults: number;
+  /** خطاهای پیاپی مسدودسازی روی صفحه‌ی جاری (جلوگیری از گیر کردن cursor) */
+  cursorFails: number;
   totalImported: number;
   totalUpdated: number;
 }

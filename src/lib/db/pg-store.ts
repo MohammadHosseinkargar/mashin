@@ -228,6 +228,11 @@ export const pgStore: Store = {
     const rows = await q<Row>(`SELECT DISTINCT brand FROM vehicles ${publishedOnly ? "WHERE is_published = true" : ""}`);
     return rows.map((r) => r.brand as string).sort((a, b) => a.localeCompare(b, "fa"));
   },
+  async listByExternalIds(ids) {
+    if (!ids.length) return [];
+    const rows = await q<Row>("SELECT * FROM vehicles WHERE specifications->>'externalId' = ANY($1::text[])", [ids.map(String)]);
+    return rows.map(toVehicle);
+  },
 
   async getRate(): Promise<ExchangeRate> {
     const rows = await q<Row>("SELECT * FROM exchange_rates ORDER BY last_updated DESC LIMIT 1");

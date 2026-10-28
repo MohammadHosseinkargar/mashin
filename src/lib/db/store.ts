@@ -17,6 +17,8 @@ export interface Store {
   updateVehicle(id: string, patch: Partial<VehicleInput>): Promise<Vehicle | null>;
   deleteVehicle(id: string): Promise<boolean>;
   listBrands(publishedOnly: boolean): Promise<string[]>;
+  /** دریافت خودروها با شناسه‌ی خارجی دسته‌ای (تطبیق سریع در همگام‌سازی) */
+  listByExternalIds(ids: string[]): Promise<Vehicle[]>;
 
   getRate(): Promise<ExchangeRate>;
   setRate(rate: number, source: string, isManual: boolean): Promise<ExchangeRate>;
@@ -88,6 +90,10 @@ export const DEFAULT_IMPORT_SETTINGS: ImportSettings = {
   enabled: false,
   lastSyncAt: null,
   lastError: null,
+  cursorPage: 1,
+  totalPages: 0,
+  totalResults: 0,
+  cursorFails: 0,
   totalImported: 0,
   totalUpdated: 0,
 };

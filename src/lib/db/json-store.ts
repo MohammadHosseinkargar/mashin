@@ -116,6 +116,11 @@ export const jsonStore: Store = {
     const set = new Set((await read()).vehicles.filter((v) => !publishedOnly || v.isPublished).map((v) => v.brand));
     return [...set].sort((a, b) => a.localeCompare(b, "fa"));
   },
+  async listByExternalIds(ids) {
+    if (!ids.length) return [];
+    const set = new Set(ids.map(String));
+    return (await read()).vehicles.filter((v) => set.has(String(v.specifications.externalId ?? "")));
+  },
 
   async getRate() {
     return (await read()).rate;

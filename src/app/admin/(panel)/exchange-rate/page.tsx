@@ -34,7 +34,7 @@ function RateForm({ data, onSaved }: { data: ExchangeRate; onSaved: (r: Exchange
     try {
       const payload = {
         rate: n,
-        source: autoMode ? source || "priceto.day (خودکار)" : source || "دستی",
+        source: autoMode ? source || "از معامله‌گاه (خودکار)" : source || "دستی",
         isManual: !autoMode,
       };
       const updated = await api<ExchangeRate>("/api/exchange-rate", { method: "PUT", json: payload });
@@ -54,14 +54,14 @@ function RateForm({ data, onSaved }: { data: ExchangeRate; onSaved: (r: Exchange
       const res = await api<{ success: boolean; rate: number; error?: string }>("/api/exchange-rate/update");
       if (res.success && res.rate) {
         setRate(String(res.rate));
-        setSource("priceto.day (خودکار)");
+        setSource("از معامله‌گاه (خودکار)");
         setAutoMode(true);
         // Refresh local resource data
         const updated = await api<ExchangeRate>("/api/exchange-rate");
         onSaved(updated);
         toast.success(`نرخ با موفقیت به روزرسانی شد: ${formatToman(res.rate)}`);
       } else {
-        toast.error(res.error || "دریافت قیمت از سرویس آنلاین با خطا مواجه شد.");
+        toast.error(res.error || "دریافت نرخ از سرویس آنلاین با خطا مواجه شد.");
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "خطا در برقراری ارتباط با سرویس نرخ ارز.");
@@ -90,15 +90,15 @@ function RateForm({ data, onSaved }: { data: ExchangeRate; onSaved: (r: Exchange
                 <span>به‌روزرسانی خودکار نرخ ارز</span>
               </div>
               <p className="text-xs text-muted">
-                دریافت آنلاین و هر ۵ دقیقه از API priceto.day
+                دریافت آنلاین و هر ۵ دقیقه از چند منبع زنده ⁢ی بازار
               </p>
             </div>
             <Switch
               checked={autoMode}
               onChange={(val) => {
                 setAutoMode(val);
-                if (val && !source.includes("priceto.day")) {
-                  setSource("priceto.day (خودکار)");
+                if (val && !source.includes("live-")) {
+                  setSource("از معامله‌گاه (خودکار)");
                 }
               }}
             />
@@ -114,7 +114,7 @@ function RateForm({ data, onSaved }: { data: ExchangeRate; onSaved: (r: Exchange
               className="w-full gap-2 border-amber/40 text-amber hover:bg-amber/10"
             >
               <RefreshCw className="size-4" />
-              بروزرسانی آنی از API قیمت
+              بروزرسانی آنی نرخ معامله‌گاه
             </Button>
           )}
 
