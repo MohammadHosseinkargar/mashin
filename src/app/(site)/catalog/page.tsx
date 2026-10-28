@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { ChevronLeft, ChevronRight, SearchX } from "lucide-react";
@@ -10,7 +9,6 @@ import { Reveal, Stagger, StaggerItem } from "@/components/motion";
 import { EmptyState, LinkButton, SectionTitle } from "@/components/ui";
 import { cn, toFa } from "@/lib/format";
 
-export const metadata: Metadata = { title: "کاتالوگ خودرو", description: "فهرست خودروهای آماده‌ی واردات از امارات با برآورد قیمت نهایی." };
 export const dynamic = "force-dynamic";
 
 const PAGE_SIZE = 12;
@@ -43,8 +41,9 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
   const query: VehicleQuery = {
     publishedOnly: true,
     search: one(sp.search), brand: one(sp.brand), fuelType: one(sp.fuelType), transmission: one(sp.transmission), status: one(sp.status),
-    yearMin: int(sp.yearMin) ?? 2023, yearMax: int(sp.yearMax), priceMin: int(sp.priceMin), priceMax: int(sp.priceMax),
+    yearMin: int(sp.yearMin) ?? 2023, yearMax: 9999, priceMin: int(sp.priceMin), priceMax: int(sp.priceMax),
     sort: (["price_asc", "price_desc", "year_desc", "mileage_asc"].includes(sort ?? "") ? sort : "newest") as VehicleQuery["sort"],
+    yearOnly: true, // فقط خودروهای بالای ۲۰۲۳
     limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE,
   };
   const [{ items, total }, rate, fees, brands] = await Promise.all([

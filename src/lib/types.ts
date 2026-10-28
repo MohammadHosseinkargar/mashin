@@ -100,6 +100,8 @@ export interface VehicleQuery {
   sort?: "newest" | "price_asc" | "price_desc" | "year_desc" | "mileage_asc";
   limit?: number;
   offset?: number;
+  /** فقط خودروهای سال ≥ ۲۰۲۳ (و سال نامشخص=۰ Pozitive باید pass) */
+  yearOnly?: boolean;
 }
 
 export interface PriceLine {

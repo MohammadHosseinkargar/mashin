@@ -7,14 +7,35 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
   title: { default: "ترنم شرق چابهار | واردات خودرو از امارات، از چابهار تا سراسر ایران", template: "%s | ترنم شرق چابهار" },
   description: "خرید و واردات خودرو از امارات با قیمت نهایی شفاف، محاسبه‌ی لحظه‌ای هزینه‌ها و پشتیبانی کامل تا ترخیص؛ از مجموعه‌ی ترنم شرق چابهار.",
+  manifest: "/manifest.json",
+  appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "ترنم شرق" },
   openGraph: { type: "website", locale: "fa_IR", siteName: "ترنم شرق چابهار" },
+  icons: {
+    icon: "/icon-192.png",
+    apple: "/icon-192.png",
+  },
 };
 
-export const viewport: Viewport = { themeColor: "#070a12", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = {
+  themeColor: "#070a12",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fa" dir="rtl" suppressHydrationWarning>
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="apple-touch-icon" href="/icon-192.png" />
+        <meta name="apple-mobile-web-app-title" content="ترنم شرق" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#f6bd4f" />
+        <meta name="theme-color" content="#070a12" />
+      </head>
       <body className="min-h-dvh antialiased">
         {children}
         <Toaster

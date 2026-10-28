@@ -187,6 +187,7 @@ export const pgStore: Store = {
     if (query.status) add("status = ?", query.status);
     if (query.yearMin) add("model_year >= ?", query.yearMin);
     if (query.yearMax) add("model_year <= ?", query.yearMax);
+    if (query.yearOnly) add("NOT (model_year < 2023)", undefined);
     if (query.priceMin) add("aed_price >= ?", query.priceMin);
     if (query.priceMax) add("aed_price <= ?", query.priceMax);
     if (query.search?.trim()) {

@@ -1,18 +1,19 @@
-import { db } from "@/lib/db";
-import { SiteHeader } from "@/components/site-header";
+import type { Metadata } from "next";
+import { SiteShell } from "@/components/site-shell";
 import { SiteFooter } from "@/components/site-footer";
-import { WhatsAppFab } from "@/components/whatsapp-fab";
+import { db } from "@/lib/db";
 
-export const dynamic = "force-dynamic";
+export const metadata: Metadata = {
+  title: "ترنم شرق چابهار | واردات خودرو از امارات، از چابهار تا سراسر ایران",
+  description: "خرید و واردات خودرو از امارات با قیمت نهایی شفاف، محاسبه‌ی لحظه‌ای هزینه‌ها و پشتیبانی کامل تا ترخیص؛ از مجموعه‌ی ترنم شرق چابهار.",
+};
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
-  const settings = await db.getSettings();
+  const s = await db.getSettings();
   return (
-    <>
-      <SiteHeader title={settings.siteTitle} />
-      <main className="relative min-h-[70dvh]">{children}</main>
-      <SiteFooter settings={settings} />
-      <WhatsAppFab number={settings.whatsappNumber} message={settings.whatsappMessage} />
-    </>
+    <SiteShell title={s.siteTitle}>
+      {children}
+      <SiteFooter settings={s} />
+    </SiteShell>
   );
 }

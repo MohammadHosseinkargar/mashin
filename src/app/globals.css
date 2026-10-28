@@ -36,7 +36,7 @@
   @keyframes rise { from { opacity: 0; transform: translateY(18px) } to { opacity: 1; transform: translateY(0) } }
 }
 
-html { scroll-behavior: smooth; color-scheme: dark; overflow-x: clip; }
+html { scroll-behavior: smooth; color-scheme: dark; overflow-x: clip; -webkit-text-size-adjust: 100%; }
 body {
   background: var(--color-bg);
   color: var(--color-ink);
@@ -44,7 +44,55 @@ body {
   font-feature-settings: "ss01", "calt";
   -webkit-font-smoothing: antialiased;
   overflow-x: clip;
+  overscroll-behavior-y: none;
+  min-height: 100dvh;
 }
+
+/* ios safe-area insets + edge-to-edge for full screen feel */
+html {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+body {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* remove 100vh issues on mobile browsers */
+.min-h-dvh {
+  min-height: 100dvh;
+}
+
+/* full-bleed sections within constrained layout */
+@layer utilities {
+  .bleed-x {
+    margin-inline: calc(-1 * var(--spacing-*));
+  }
+  .max-w-7xl,
+  .max-w-6xl {
+    --spacing-*: 0;
+  }
+}
+
+/* ensure fixed elements respect safe areas */
+[class*="bottom-0"][class*="fixed"] { padding-bottom: env(safe-area-inset-bottom); }
+[class*="top-0"][class*="fixed"] { padding-top: env(safe-area-inset-top); }
+
+/* remove tap highlight on ios where appropriate */
+.btn,
+button,
+a,
+Link,
+[class*="group"],
+[class*="nav"] {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* dark scrollbar for webkit */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--color-bg); }
+::-webkit-scrollbar-thumb { background: var(--color-surface-3); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #2a3650; }
 ::selection { background: rgb(246 189 79 / 0.35); color: #fff; }
 :focus-visible { outline: 2px solid var(--color-gold); outline-offset: 3px; border-radius: 8px; }
 

@@ -6,6 +6,7 @@ import { HeroScene } from "@/components/hero-scene";
 import { VehicleCard } from "@/components/vehicle-card";
 import { PriceCalculator } from "@/components/price-calculator";
 import { ConsultForm } from "@/components/consult-form";
+import { SectionTitle as UiSectionTitle } from "@/components/ui";
 
 const STEPS = [
   { icon: Search, title: "انتخاب خودرو", text: "از کاتالوگ خودروی مدنظرتان را انتخاب کنید یا مشخصاتش را به ما بگویید." },
