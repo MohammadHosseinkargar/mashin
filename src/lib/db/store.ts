@@ -57,6 +57,7 @@ export function applyVehicleQuery(all: Vehicle[], q: VehicleQuery = {}): { items
     if (q.status && v.status !== q.status) return false;
     if (q.yearMin && v.modelYear < q.yearMin) return false;
     if (q.yearMax && v.modelYear > q.yearMax) return false;
+    if (q.yearOnly && v.modelYear < 2022) return false;
     if (q.priceMin && v.aedPrice < q.priceMin) return false;
     if (q.priceMax && v.aedPrice > q.priceMax) return false;
     if (s && !`${v.brand} ${v.model} ${v.description}`.toLowerCase().includes(s)) return false;
