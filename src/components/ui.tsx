@@ -116,7 +116,7 @@ export function Modal({ open, onClose, title, children, wide }: { open: boolean;
             role="dialog" aria-modal="true" aria-label={title}
             initial={{ opacity: 0, y: 50, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 30, scale: 0.97 }}
             transition={{ type: "spring", stiffness: 380, damping: 32 }}
-            className={cn("card-surface relative max-h-[92dvh] w-full overflow-y-auto rounded-t-3xl p-6 shadow-2xl sm:rounded-3xl", wide ? "sm:max-w-2xl" : "sm:max-w-md")}
+            className={cn("card-surface relative max-h-[92dvh] w-full max-w-[calc(100%-24px)] overflow-y-auto rounded-t-3xl p-6 shadow-2xl sm:rounded-3xl", wide ? "sm:max-w-2xl" : "sm:max-w-md")}
           >
             <div className="mb-5 flex items-center justify-between gap-4">
               <h2 className="text-lg font-bold">{title}</h2>
@@ -149,7 +149,7 @@ export function Spinner({ className }: { className?: string }) {
 
 export function EmptyState({ icon, title, text, action }: { icon: ReactNode; title: string; text?: string; action?: ReactNode }) {
   return (
-    <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-line-strong px-6 py-16 text-center">
+    <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-line-strong px-6 py-16 text-center overflow-hidden">
       <div className="grid size-16 place-items-center rounded-2xl bg-gold/10 text-gold">{icon}</div>
       <h3 className="text-lg font-bold">{title}</h3>
       {text && <p className="max-w-sm text-sm leading-7 text-muted">{text}</p>}
@@ -160,9 +160,9 @@ export function EmptyState({ icon, title, text, action }: { icon: ReactNode; tit
 
 export function SectionTitle({ eyebrow, title, text, center }: { eyebrow?: string; title: ReactNode; text?: string; center?: boolean }) {
   return (
-    <div className={cn("mb-10 space-y-3", center && "text-center mx-auto max-w-2xl")}>
+    <div className={cn("mb-8 space-y-3 sm:mb-10", center && "text-center mx-auto max-w-2xl")}>
       {eyebrow && <span className="inline-block rounded-full border border-gold/25 bg-gold/10 px-3 py-1 text-xs font-semibold text-gold">{eyebrow}</span>}
-      <h2 className="text-3xl font-black leading-tight md:text-4xl">{title}</h2>
+      <h2 className="text-2xl font-black leading-tight sm:text-3xl md:text-4xl">{title}</h2>
       {text && <p className="leading-8 text-muted">{text}</p>}
     </div>
   );

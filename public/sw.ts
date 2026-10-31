@@ -98,7 +98,9 @@ swSelf.addEventListener("fetch", (e) => {
     return;
   }
 
-  e.respondWith(fetch(req).catch(async () => caches.match(req)));
+  e.respondWith(
+    fetch(req).catch(async () => (await caches.match(req)) ?? Response.error()),
+  );
 });
 
 swSelf.addEventListener("message", (e) => {

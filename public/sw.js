@@ -2,7 +2,7 @@
 
 
 
-const CACHE = "trnm-site-v1";
+const CACHE = "trnm-site-v2";
 const STATIC = [
   "/",
   "/catalog",
@@ -42,16 +42,12 @@ self.addEventListener("fetch", (e) => {
   const req = e.request;
   const url = new URL(req.url);
 
-  //ตรึง API calls to network (no caching) so rate + catalog stay fresh
-  if (url.pathname.startsWith("/api/")) {
-    e.respondWith(
-      fetch(req).catch(() => new Response(JSON.stringify({ success: false, error: "آفلاین" }), { status: 503, headers: { "Content-Type": "application/json" } })),
-    );
-    return;
-  }
+  // فقط GET و فقط همین origin؛ پنل مدیریت و API هرگز کش نمی‌شوند (حریم خصوصی + داده‌ی تازه)
+  if (req.method !== "GET" || url.origin !== self.location.origin) return;
+  if (url.pathname.startsWith("/admin") || url.pathname.startsWith("/api/")) return;
 
-  // HTML pages: network-first with offline fallback
-  if (req.method === "GET" && req.headers.get("accept")?.includes("text/html")) {
+    // HTML pages: network-first with offline fallback
+  if (req.headers.get("accept")?.includes("text/html")) {
     e.respondWith(
       fetch(req)
         .then((r) => cacheOk(r))
@@ -65,16 +61,16 @@ self.addEventListener("fetch", (e) => {
   }
 
   // assets: cache-first, falling back to network
-  if (req.method === "GET" && (url.pathname.endsWith(".png") || url.pathname.endsWith(".jpg") || url.pathname.endsWith(".webp") || url.pathname.endsWith(".svg") || url.pathname.endsWith(".js") || url.pathname.endsWith(".css"))) {
+  if (url.pathname.startsWith("/_next/static/") || /^\/icon-\d+\.png$/.test(url.pathname)) {
     e.respondWith(
       caches.match(req).then((cached) => cached ?? fetch(req).then(cacheOk)),
     );
     return;
   }
 
-  // fallback for anything else not matched: network-first
+  // بقیه (مثل عکس‌های آپلودی): شبکه، و در صورت قطعی نسخه‌ی کش‌شده
   e.respondWith(
-    fetch(req).catch(async () => caches.match(req)),
+    fetch(req).catch(async () => (await caches.match(req)) ?? Response.error()),
   );
 });
 

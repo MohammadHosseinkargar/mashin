@@ -6,16 +6,16 @@ import { useEffect, useRef } from "react";
 const EASE = [0.22, 1, 0.36, 1] as const;
 
 export function Reveal({
-  children, delay = 0, y = 28, x = 0, className, once = true, blur = true,
-}: { children: React.ReactNode; delay?: number; y?: number; x?: number; className?: string; once?: boolean; blur?: boolean }) {
+  children, delay = 0, y = 24, x = 0, className, once = true,
+}: { children: React.ReactNode; delay?: number; y?: number; x?: number; className?: string; once?: boolean }) {
   const reduce = useReducedMotion();
   return (
     <motion.div
       className={className}
-      initial={reduce ? false : { opacity: 0, y, x, filter: blur ? "blur(8px)" : "blur(0px)" }}
-      whileInView={{ opacity: 1, y: 0, x: 0, filter: "blur(0px)" }}
-      viewport={{ once, margin: "-70px" }}
-      transition={{ duration: 0.8, delay, ease: EASE }}
+      initial={reduce ? false : { opacity: 0, y, x }}
+      whileInView={{ opacity: 1, y: 0, x: 0 }}
+      viewport={{ once, margin: "0px 0px -60px 0px" }}
+      transition={{ duration: 0.7, delay, ease: EASE }}
     >
       {children}
     </motion.div>
@@ -28,7 +28,7 @@ export function Stagger({ children, className, gap = 0.08, delay = 0 }: { childr
       className={className}
       initial="hidden"
       whileInView="show"
-      viewport={{ once: true, margin: "-60px" }}
+      viewport={{ once: true, margin: "0px 0px -50px 0px" }}
       variants={{ hidden: {}, show: { transition: { staggerChildren: gap, delayChildren: delay } } }}
     >
       {children}
@@ -40,7 +40,7 @@ export function StaggerItem({ children, className, ...rest }: { children: React.
   return (
     <motion.div
       className={className}
-      variants={{ hidden: { opacity: 0, y: 30, scale: 0.97 }, show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.7, ease: EASE } } }}
+      variants={{ hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: EASE } } }}
       {...rest}
     >
       {children}
@@ -66,15 +66,11 @@ export function CountUp({ to, duration = 1.8, className, suffix = "" }: { to: nu
   return <motion.span ref={ref} className={className}>{text}</motion.span>;
 }
 
-/** انتقال نرم بین صفحات (در template ها استفاده می‌شود) */
+/** انتقال نرم بین صفحات: فقط محو شدن. transform/filter روی ریشه‌ی صفحه باعث می‌شود المان‌های fixed (مودال‌ها) نسبت به آن موقعیت بگیرند. */
 export function PageTransition({ children }: { children: React.ReactNode }) {
   const reduce = useReducedMotion();
   return (
-    <motion.div
-      initial={reduce ? false : { opacity: 0, y: 22, filter: "blur(10px)" }}
-      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-      transition={{ duration: 0.6, ease: EASE }}
-    >
+    <motion.div initial={reduce ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.35, ease: "easeOut" }}>
       {children}
     </motion.div>
   );

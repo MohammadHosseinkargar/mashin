@@ -20,13 +20,13 @@ export function VehicleCard({ vehicle: v, rate, fees }: { vehicle: Vehicle; rate
             <CarArt brand={v.brand} className="size-full" />
           )}
           <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-surface to-transparent" />
-          <div className="absolute start-3 top-3"><Badge tone={tone} className="backdrop-blur-md">{STATUS_LABEL[v.status]}</Badge></div>
-          <div className="absolute end-3 top-3 rounded-full bg-black/55 px-3 py-1 text-xs font-bold backdrop-blur-md">{toFaPlain(v.modelYear)}</div>
+          <div className="absolute start-3 top-3"><Badge tone={tone} className="backdrop-blur-md shrink-0">{STATUS_LABEL[v.status]}</Badge></div>
+          <div className="absolute end-3 top-3 rounded-full bg-black/55 px-3 py-1 text-xs font-bold backdrop-blur-md shrink-0">{toFaPlain(v.modelYear)}</div>
         </div>
         <div className="flex flex-1 flex-col gap-4 p-5">
           <div>
             <p className="text-xs font-semibold text-gold">{v.brand}</p>
-            <h3 className="mt-1 text-lg font-bold leading-snug transition-colors group-hover:text-gold" dir="auto">{v.model}</h3>
+            <h3 className="mt-1 text-lg font-bold leading-snug truncate transition-colors group-hover:text-gold" dir="auto">{v.model}</h3>
           </div>
           <ul className="flex flex-wrap gap-x-4 gap-y-2 text-xs text-muted">
             <li className="flex items-center gap-1.5"><Gauge className="size-3.5 text-faint" />{toFa(v.mileage)} کیلومتر</li>

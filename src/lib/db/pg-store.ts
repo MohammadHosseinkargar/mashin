@@ -175,6 +175,13 @@ async function setKv<T extends object>(key: string, value: T): Promise<void> {
   await q("INSERT INTO app_kv (key, value, updated_at) VALUES ($1,$2,NOW()) ON CONFLICT (key) DO UPDATE SET value = $2, updated_at = NOW()", [key, JSON.stringify(value)]);
 }
 
+function fmtSqlNum(n: number | string | undefined): undefined | string {
+  if (n === undefined || n === null) return undefined;
+  const num = typeof n === "string" ? Number(n) : n;
+  if (Number.isFinite(num)) return String(num);
+  return String(n).trim();
+}
+
 export const pgStore: Store = {
   async listVehicles(query: VehicleQuery = {}) {
     const where: string[] = [];
@@ -185,14 +192,16 @@ export const pgStore: Store = {
     if (query.fuelType) add("fuel_type = ?", query.fuelType);
     if (query.transmission) add("transmission = ?", query.transmission);
     if (query.status) add("status = ?", query.status);
-    if (query.yearMin) add("model_year >= ?", query.yearMin);
-    if (query.yearMax) add("model_year <= ?", query.yearMax);
-    if (query.yearOnly) add("NOT (model_year < 2023)", undefined);
-    if (query.priceMin) add("aed_price >= ?", query.priceMin);
-    if (query.priceMax) add("aed_price <= ?", query.priceMax);
+    if (query.yearMin) { const v = fmtSqlNum(query.yearMin); if (v !== undefined) add("model_year >= ?", v); }
+    if (query.yearMax) { const v = fmtSqlNum(query.yearMax); if (v !== undefined) add("model_year <= ?", v); }
+    if (query.yearOnly) where.push("model_year >= 2023");
+    if (query.priceMin) { const v = fmtSqlNum(query.priceMin); if (v !== undefined) add("aed_price >= ?", v); }
+    if (query.priceMax) { const v = fmtSqlNum(query.priceMax); if (v !== undefined) add("aed_price <= ?", v); }
     if (query.search?.trim()) {
-      p.push(`%${query.search.trim().replace(/[%_\\]/g, "\\$&")}%`);
-      where.push(`(brand ILIKE $${p.length} OR model ILIKE $${p.length} OR description ILIKE $${p.length})`);
+      const term = query.search.trim();
+      p.push(`%${term.replace(/[%_\\]/g, "\\$&")}%`);
+      const sql = `(brand ILIKE $${p.length} OR model ILIKE $${p.length} OR description ILIKE $${p.length})`;
+      where.push(sql);
     }
     const w = where.length ? `WHERE ${where.join(" AND ")}` : "";
     const order = SORT_SQL[query.sort ?? "newest"] ?? SORT_SQL.newest;

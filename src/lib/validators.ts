@@ -1,6 +1,28 @@
 import { z } from "zod";
 import { toEnDigits } from "./format";
 
+// پیام‌های پیش‌فرض zod انگلیسی هستند و مستقیم به کاربر نشان داده می‌شوند.
+// پیام‌های اختصاصی هر فیلد (که پایین‌تر تعریف شده‌اند) همچنان اولویت دارند.
+z.setErrorMap((issue, ctx) => {
+  switch (issue.code) {
+    case "invalid_type":
+    case "invalid_enum_value":
+    case "invalid_string":
+    case "invalid_union":
+    case "invalid_arguments":
+    case "invalid_return_type":
+      return { message: "مقدار وارد شده معتبر نیست" };
+    case "too_small":
+      return { message: "مقدار وارد شده کوچک‌تر از حد مجاز است" };
+    case "too_big":
+      return { message: "مقدار وارد شده بزرگ‌تر از حد مجاز است" };
+    case "invalid_date":
+      return { message: "تاریخ وارد شده معتبر نیست" };
+    default:
+      return { message: ctx.defaultError };
+  }
+});
+
 const num = (min: number, max: number) =>
   z.preprocess((v) => (typeof v === "string" ? Number(toEnDigits(v).replace(/[,٬\s]/g, "")) : v), z.number().finite().min(min).max(max));
 

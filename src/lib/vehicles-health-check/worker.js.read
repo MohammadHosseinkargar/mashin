@@ -1,0 +1,44 @@
+This script is a standalone Node.js health-check worker for the vehicle inventory.
+
+Purpose
+- Every 60 seconds, scan imported vehicles that carry an external source reference.
+- For each vehicle, verify whether the original listing still exists at its source.
+- If the source confirms the listing is gone, mark the vehicle unavailable so it is
+  excluded from the public catalog.
+- If the check cannot be completed (timeout, network error, blocking, 403/429), keep the
+  current status unchanged.
+
+External check results
+- true     → listing exists
+- false    → listing is confirmed unavailable
+- null     → unknown; must never be used as grounds for removal
+
+Safety rules
+- Manual unavailable status from the admin panel is authoritative and must never be
+  overridden by a positive external check.
+- Local vehicles with no externalId are never removed because an external source is
+  unreachable.
+- A single inconclusive check must not flip status. The worker keeps a short-lived in-memory
+  check ledger so a removal decision requires confirmation across multiple runs.
+
+Database
+- The worker uses the same PostgreSQL path as the app. It imports pg directly and connects
+  with DATABASE_URL.
+- It only ever updates status and a tracking field on vehicles. It never deletes rows.
+
+Scheduling
+- When run without --once, the worker ticks every 60 seconds by default.
+- HEALTH_INTERVAL_SECONDS can override the interval.
+- The worker logs each tick and reports blockers when the source cannot be reached.
+
+Deployment
+- This is a long-running Node process. It is not a Next.js API route.
+- It should be executed by the same mechanism that keeps your background services alive:
+  systemd, PM2, a process manager on your own server, or whatever scheduler your hosting
+  environment provides.
+- For a personal PostgreSQL server, the simplest reliable approach is a systemd service or
+  pm2 process that restarts the worker automatically.
+
+Source blocks
+- The executable source is stored in worker.js.source as labeled text blocks.
+- The readable narrative above is intentionally incomplete; the source block is authoritative.

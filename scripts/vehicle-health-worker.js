@@ -117,11 +117,15 @@ async function loadVehicles() {
 //   - اگر دسترسی به منبع वहीّت/Blocked بود → null (결과 نمی‌دهیم)
 //   - اگر ответ положительいました → false (هنوز وجود دارد)
 async function externalExists(externalId, source) {
-  // TODO: هر گاه از منبع دیگری (نه دوبی‌کارز مسدود) استفاده کنید،
-  // اینجا را پر کنید. بدون این، هیچ خودروی واردشده‌ای به‌همی‌جهت
-  // "unavailable" 되지 نمی‌کند.
-  console.log(`[vehicle-health][${now()}] خارجی چک نشده برای externalId=${externalId} source=${source}`);
-  return null; // null = نمی‌دانم / منتظر نمی‌گیریم
+  // Out-of-the-box this worker cannot rely on dubaicar because automated requests to that
+  // site are frequently blocked / inconclusive. Until a reliable fetch path exists, do not
+  // treat dubaicar reachability as proof that a vehicle was removed.
+  //
+  // When a different, reachable source is configured, wire it here so imported vehicles can
+  // actually be confirmed present or confirmed removed. Without this, no imported vehicle will
+  // ever be transitioned to unavailable by this worker.
+  console.log(`[vehicle-health][${now()}] external check skipped for externalId=${externalId} source=${source}`);
+  return null; // null = unknown; we never use unknown as proof of removal
 }
 
 // ---- خودروی ورودی را بر اساس سایت خودتان تشخیص می‌دهد ----

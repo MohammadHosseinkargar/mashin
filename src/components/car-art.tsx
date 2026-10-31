@@ -85,7 +85,7 @@ export function CarArt({ brand, className }: { brand: string; className?: string
     >
       <div className="absolute inset-0 bg-grid opacity-60" />
       <span className="absolute inset-x-0 top-3 text-center text-5xl font-black tracking-tight text-white/[0.05] select-none">{brand}</span>
-      <CarSilhouette paint={paint.body} className="relative z-10 w-[88%] drop-shadow-[0_18px_28px_rgba(0,0,0,.55)] transition-transform duration-700 group-hover:scale-105 group-hover:-translate-x-1" />
+      <CarSilhouette paint={paint.body} className="relative z-10 max-w-[92%] drop-shadow-[0_18px_28px_rgba(0,0,0,.55)] transition-transform duration-700 group-hover:scale-105 group-hover:-translate-x-1" />
     </div>
   );
 }

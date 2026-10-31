@@ -17,17 +17,22 @@ export function VehicleGallery({ images, brand, title }: { images: string[]; bra
     <div className="space-y-3">
       <div className="group relative aspect-[16/10] overflow-hidden rounded-3xl border border-line bg-surface">
         <AnimatePresence mode="wait" initial={false}>
-          <motion.div key={i} initial={{ opacity: 0, scale: 1.06 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.45 }} className="absolute inset-0">
+          <motion.div
+            key={i} initial={{ opacity: 0, scale: 1.04 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }} className="absolute inset-0 touch-pan-y"
+            drag={images.length > 1 ? "x" : false} dragDirectionLock dragSnapToOrigin dragElastic={0.2}
+            onDragEnd={(_, info) => { if (info.offset.x > 60) go(1); else if (info.offset.x < -60) go(-1); }}
+          >
             {has ? <img src={images[i]} alt={`${title} - تصویر ${i + 1}`} className="size-full object-cover" /> : <CarArt brand={brand} className="size-full" />}
           </motion.div>
         </AnimatePresence>
         {has && (
           <>
-            <button onClick={() => setZoom(true)} aria-label="بزرگ‌نمایی" className="absolute end-3 top-3 grid size-10 place-items-center rounded-xl bg-black/50 backdrop-blur-md transition hover:bg-black/70"><Expand className="size-5" /></button>
+            <button onClick={() => setZoom(true)} aria-label="بزرگ‌نمایی" className="absolute end-3 top-3 z-10 grid size-10 place-items-center rounded-xl bg-black/50 backdrop-blur-md transition hover:bg-black/70"><Expand className="size-5" /></button>
             {images.length > 1 && (
               <>
-                <button onClick={() => go(1)} aria-label="تصویر بعدی" className="absolute start-3 top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-full bg-black/50 opacity-0 backdrop-blur-md transition group-hover:opacity-100 hover:bg-gold hover:text-[#1a1204]"><ChevronLeft className="size-5" /></button>
-                <button onClick={() => go(-1)} aria-label="تصویر قبلی" className="absolute end-3 top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-full bg-black/50 opacity-0 backdrop-blur-md transition group-hover:opacity-100 hover:bg-gold hover:text-[#1a1204]"><ChevronRight className="size-5" /></button>
+                <button onClick={() => go(1)} aria-label="تصویر بعدی" className="absolute end-3 top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-full bg-black/50 backdrop-blur-md transition hover:bg-gold hover:text-[#1a1204] md:opacity-0 md:group-hover:opacity-100"><ChevronLeft className="size-5" /></button>
+                <button onClick={() => go(-1)} aria-label="تصویر قبلی" className="absolute start-3 top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-full bg-black/50 backdrop-blur-md transition hover:bg-gold hover:text-[#1a1204] md:opacity-0 md:group-hover:opacity-100"><ChevronRight className="size-5" /></button>
+                <span className="pointer-events-none absolute bottom-3 start-1/2 -translate-x-1/2 rounded-full bg-black/55 px-3 py-1 text-xs font-bold backdrop-blur-md" dir="ltr">{i + 1} / {images.length}</span>
               </>
             )}
           </>

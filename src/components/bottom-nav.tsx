@@ -1,121 +1,72 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "motion/react";
-import { Home, Search, Calculator, Info, Phone } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { motion } from "motion/react";
+import { Calculator, Car, Home, Info, Phone } from "lucide-react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/format";
-import { useEffect, useRef } from "react";
+import { useActiveNav } from "@/lib/use-active-nav";
 
-type IconType = typeof Home;
+const TABS = [
+  { href: "/", label: "خانه", icon: Home },
+  { href: "/catalog", label: "کاتالوگ", icon: Car },
+  { href: "/#calculator", label: "محاسبه", icon: Calculator },
+  { href: "/about", label: "درباره ما", icon: Info },
+  { href: "/contact", label: "تماس", icon: Phone },
+] as const;
 
-interface Tab {
-  href: string;
-  label: string;
-}
+const NON_TEXT = new Set(["checkbox", "radio", "range", "button", "submit", "reset", "file", "color"]);
 
-const TABS: Tab[] = [
-  { href: "/", label: "خانه" },
-  { href: "/catalog", label: "کاتالوگ" },
-  { href: "/#calculator", label: "محاسبه" },
-  { href: "/about", label: "درباره ما" },
-  { href: "/contact", label: "تماس" },
-];
-
-const ICON_MAP: Record<string, IconType> = {
-  "/": Home,
-  "/catalog": Search,
-  "/#calculator": Calculator,
-  "/about": Info,
-  "/contact": Phone,
-};
-
-function iconFor(href: string) {
-  return ICON_MAP[href] ?? Home;
-}
-
-export function BottomNav({ className }: { className?: string }) {
+export function BottomNav() {
   const pathname = usePathname();
-  const el = useRef<HTMLDivElement>(null);
+  const active = useActiveNav();
+  const [typing, setTyping] = useState(false);
 
+  // وقتی کیبورد موبایل باز است، نوار پایین نباید روی کیبورد/فیلد شناور شود
   useEffect(() => {
-    el.current?.scrollIntoView({ block: "end", inline: "nearest" });
-  }, [pathname]);
+    if (!window.matchMedia("(pointer: coarse)").matches) return;
+    const isField = (t: EventTarget | null) =>
+      t instanceof HTMLElement && (t.tagName === "TEXTAREA" || t.tagName === "SELECT" || (t.tagName === "INPUT" && !NON_TEXT.has((t as HTMLInputElement).type)));
+    const onIn = (e: FocusEvent) => { if (isField(e.target)) setTyping(true); };
+    const onOut = () => setTyping(false);
+    document.addEventListener("focusin", onIn);
+    document.addEventListener("focusout", onOut);
+    return () => { document.removeEventListener("focusin", onIn); document.removeEventListener("focusout", onOut); };
+  }, []);
 
-  // active tab logic: home exact, others by prefix, calculator by anchor fallback
-  function activeTab() {
-    if (pathname === "/") return TABS[0];
-    for (const t of TABS) {
-      if (t.href.startsWith("/#")) {
-        const base = t.href.replace("#", "");
-        if (pathname === base || (base && pathname.startsWith(base))) return t;
-      } else if (pathname.startsWith(t.href) && !t.href.startsWith("/#")) return t;
+  function onTap(e: React.MouseEvent, href: string) {
+    // لمس دوباره‌ی «خانه» وقتی همین‌جا هستیم = برگشت به بالای صفحه
+    if (href === "/" && pathname === "/") {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      if (window.location.hash) history.replaceState(null, "", "/");
     }
-    return TABS[0];
   }
 
-  const active = activeTab();
-
   return (
-    <div ref={el}>
-      <nav className={cn("touch-manipulation sm:hidden", className)} aria-label="منوی پایین">
-        <div className="fixed bottom-0 inset-x-0 z-50 overflow-hidden rounded-t-[2.25rem] border-t border-line bg-surface/95 backdrop-blur-xl shadow-[0_-12px_32px_-10px_rgb(0_0_0/.7)]">
-          <div className="mx-auto flex max-w-[580px] items-center justify-around gap-1 pb-2.5 pt-1">
-            {TABS.map((t) => {
-              const isActive = active.href === t.href;
-              const Icon = iconFor(t.href);
-              return (
+    <nav aria-label="منوی پایین" aria-hidden={typing || undefined} className={cn("fixed inset-x-0 bottom-0 z-50 md:hidden transition-transform duration-300", typing && "pointer-events-none translate-y-full")}>
+      <div className="border-t border-line bg-surface/92 pb-[env(safe-area-inset-bottom)] shadow-[0_-12px_32px_-12px_rgb(0_0_0/.8)] backdrop-blur-xl">
+        <ul className="mx-auto grid h-[var(--nav-h)] max-w-lg grid-cols-5">
+          {TABS.map((t) => {
+            const isActive = active === t.href;
+            return (
+              <li key={t.href} className="min-w-0">
                 <Link
-                  key={t.href}
                   href={t.href}
-                  className={cn(
-                    "flex flex-col items-center gap-0.5 rounded-xl px-3 py-1.5 transition-colors duration-300",
-                    isActive ? "text-ink" : "text-muted",
-                  )}
+                  onClick={(e) => onTap(e, t.href)}
                   aria-current={isActive ? "page" : undefined}
+                  className={cn("relative flex h-full flex-col items-center justify-center gap-1 transition-colors duration-200 active:scale-95", isActive ? "text-gold" : "text-muted")}
                 >
-                  <span
-                    className={cn(
-                      "grid size-6 place-items-center rounded-lg transition-all duration-300",
-                      isActive ? "bg-gold/15 text-gold" : "bg-white/[0.04] text-muted",
-                    )}
-                  >
-                    <Icon className="size-5 [stroke-width:2]" />
-                  </span>
-                  <span
-                    className={cn(
-                      "text-[10px] font-semibold leading-tight",
-                      isActive ? "text-gold" : "text-muted",
-                    )}
-                  >
-                    {t.label}
-                  </span>
-                  <AnimatePresence initial={false}>
-                    {isActive && (
-                      <motion.span
-                        initial={{ scaleX: 0, opacity: 0 }}
-                        animate={{ scaleX: 1, opacity: 1 }}
-                        exit={{ scaleX: 0, opacity: 0 }}
-                        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                        className="absolute bottom-0 left-1/2 h-[2px] -translate-x-1/2 rounded-full bg-gradient-to-r from-gold/80 to-amber"
-                      />
-                    )}
-                  </AnimatePresence>
+                  {isActive && <motion.span layoutId="bottom-nav-indicator" className="absolute inset-x-5 top-0 h-[3px] rounded-b-full bg-gradient-to-l from-gold to-amber" transition={{ type: "spring", stiffness: 500, damping: 36 }} />}
+                  <t.icon className="size-[22px]" strokeWidth={isActive ? 2.4 : 1.9} />
+                  <span className="max-w-full truncate px-1 text-[11px] font-semibold leading-none">{t.label}</span>
                 </Link>
-              );
-            })}
-          </div>
-          {/* subtle center line */}
-          <div className="mx-auto mt-0.5 flex h-px max-w-[580px] items-center justify-around gap-3">
-            {TABS.map((t) => (
-              <span key={t.href} className="h-px w-6 bg-white/[0.06] transition-all duration-300" />
-            ))}
-          </div>
-        </div>
-
-        {/* soft shadow to indicate the bar is pinned */}
-        <div className="pointer-events-none fixed bottom-[calc(100%+1px)] left-1/2 h-[10px] w-[580px] -translate-x-1/2 rounded-full bg-gradient-to-t from-surface/60 to-transparent blur-2xl" />
-      </nav>
-    </div>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </nav>
   );
 }

@@ -17,7 +17,7 @@ export function PriceCalculator({ rate, fees }: { rate: number; fees: ImportFee[
   return (
     <div className="glass relative overflow-hidden rounded-[2rem] p-6 sm:p-10">
       <div className="pointer-events-none absolute -top-24 start-1/2 size-72 -translate-x-1/2 rounded-full bg-gold/15 blur-3xl" />
-      <div className="relative grid gap-10 lg:grid-cols-2">
+      <div className="relative grid gap-10 lg:grid-cols-2 min-w-0">
         <div className="space-y-6">
           <div className="flex items-center gap-3">
             <span className="grid size-12 place-items-center rounded-2xl bg-gold/15 text-gold"><Calculator className="size-6" /></span>

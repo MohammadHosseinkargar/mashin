@@ -54,21 +54,21 @@ export default async function VehiclePage({ params }: Ctx) {
   ];
 
   return (
-    <div className="mx-auto max-w-7xl px-4 pt-28 sm:px-6 sm:pt-32">
-      <nav aria-label="مسیر" className="mb-6 flex items-center gap-2 text-sm text-muted">
-        <Link href="/" className="hover:text-ink">خانه</Link><ChevronLeft className="size-4" />
-        <Link href="/catalog" className="hover:text-ink">کاتالوگ</Link><ChevronLeft className="size-4" />
-        <span className="text-ink" dir="auto">{title}</span>
+    <div className="mx-auto max-w-7xl px-4 pt-5 sm:px-6 sm:pt-8">
+      <nav aria-label="مسیر" className="mb-5 flex min-w-0 items-center gap-2 text-sm text-muted sm:mb-6">
+        <Link href="/" className="shrink-0 hover:text-ink">خانه</Link><ChevronLeft className="size-4 shrink-0" />
+        <Link href="/catalog" className="shrink-0 hover:text-ink">کاتالوگ</Link><ChevronLeft className="size-4 shrink-0" />
+        <span className="min-w-0 truncate text-ink" dir="auto">{title}</span>
       </nav>
 
       <div className="grid gap-8 lg:grid-cols-[1.35fr_1fr]">
-        <div className="space-y-8">
+        <div className="min-w-0 space-y-8">
           <Reveal><VehicleGallery images={v.images} brand={v.brand} title={title} /></Reveal>
 
           <Reveal>
             <div className="space-y-4">
               <div className="flex flex-wrap items-center gap-3"><Badge tone="gold">{v.brand}</Badge><Badge tone={tone}>{STATUS_LABEL[v.status]}</Badge>{s.gccSpec === true && <Badge tone="sky">اسپک GCC</Badge>}</div>
-              <h1 className="text-3xl font-black leading-snug sm:text-4xl" dir="auto">{v.brand} {v.model} <span className="text-muted">{toFaPlain(v.modelYear)}</span></h1>
+              <h1 className="text-2xl font-black leading-snug wrap-anywhere sm:text-4xl" dir="auto">{v.brand} {v.model} <span className="text-muted">{toFaPlain(v.modelYear)}</span></h1>
               {v.description && <p className="whitespace-pre-line leading-9 text-muted">{v.description}</p>}
             </div>
           </Reveal>
@@ -93,12 +93,12 @@ export default async function VehiclePage({ params }: Ctx) {
           )}
         </div>
 
-        <aside className="space-y-6 lg:sticky lg:top-28 lg:self-start">
+        <aside className="min-w-0 space-y-6 lg:sticky lg:top-[calc(var(--header-h)+1.5rem)] lg:self-start">
           <Reveal x={-30} y={0}>
             <div className="glass relative overflow-hidden rounded-3xl p-6">
               <div className="pointer-events-none absolute -top-16 end-0 size-48 rounded-full bg-gold/20 blur-3xl" />
               <p className="text-sm text-muted">برآورد قیمت نهایی در ایران</p>
-              <p className="mt-2 text-3xl font-black gradient-text">{rate.rate > 0 ? formatToman(price.totalToman) : "استعلام قیمت"}</p>
+              <p className="mt-2 text-2xl font-black gradient-text sm:text-3xl">{rate.rate > 0 ? formatToman(price.totalToman) : "استعلام قیمت"}</p>
               <p className="mt-1 text-sm text-faint">قیمت در امارات: {formatAed(v.aedPrice)}</p>
 
               {rate.rate > 0 && (
@@ -131,7 +131,7 @@ export default async function VehiclePage({ params }: Ctx) {
       </div>
 
       {others.length > 0 && (
-        <section className="mt-24">
+        <section className="mt-16 sm:mt-24">
           <Reveal><h2 className="mb-8 text-2xl font-black">خودروهای مشابه از {v.brand}</h2></Reveal>
           <Stagger className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {others.map((o) => (<StaggerItem key={o.id}><VehicleCard vehicle={o} rate={rate.rate} fees={fees} /></StaggerItem>))}

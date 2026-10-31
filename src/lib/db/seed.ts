@@ -32,7 +32,7 @@ export const SEED_VEHICLES: VehicleInput[] = [
     model: "Patrol Platinum",
     modelYear: 2022,
     aedPrice: 198000,
-  }, */,
+  }, */
   {
     images: [] as string[],
     isPublished: true,
@@ -64,7 +64,7 @@ export const SEED_VEHICLES: VehicleInput[] = [
     model: "GLE 450",
     modelYear: 2022,
     aedPrice: 265000,
-  }, */,
+  }, */
   {
     images: [] as string[],
     isPublished: true,
@@ -112,7 +112,7 @@ export const SEED_VEHICLES: VehicleInput[] = [
     model: "Tucson Limited",
     modelYear: 2022,
     aedPrice: 82000,
-  }, */,
+  }, */
   {
     images: [] as string[],
     isPublished: true,

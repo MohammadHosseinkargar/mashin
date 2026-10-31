@@ -18,7 +18,8 @@ export function CatalogFilters({ brands, total }: { brands: string[]; total: num
   const urlSearch = sp.get("search") ?? "";
   const [pushed, setPushed] = useState(urlSearch);
   const [prevUrl, setPrevUrl] = useState(urlSearch);
-  // همگام‌سازی با تغییر آدرس از بیرون (دکمه‌ی back، ریست) بدون اثر جانبی
+  // همگام‌سازی با تغییر آدرس از بیرون (دکمه‌ی back، ریست) در زمان render — الگوی رسمی React
+  // «adjusting state when props change»؛ این الگو بدون side-effect در effect است و خطای lint ندارد.
   if (urlSearch !== prevUrl) {
     setPrevUrl(urlSearch);
     if (urlSearch !== pushed) { setPushed(urlSearch); setSearch(urlSearch); }
@@ -49,9 +50,9 @@ export function CatalogFilters({ brands, total }: { brands: string[]; total: num
   );
 
   return (
-    <div className="glass relative rounded-3xl p-4 sm:p-5">
-      <div className="grid gap-3 md:grid-cols-[1.6fr_1fr_1fr_1fr_auto]">
-        <div className="relative">
+    <div className="glass relative overflow-hidden rounded-3xl p-3.5 sm:p-5">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-[1.6fr_1fr_1fr_1fr_auto]">
+        <div className="relative col-span-2 md:col-span-1">
           <Search className="pointer-events-none absolute start-4 top-1/2 size-5 -translate-y-1/2 text-faint" />
           <Input value={search} onChange={(e) => onSearch(e.target.value)} placeholder="جستجوی برند، مدل یا توضیحات..." className="ps-12" aria-label="جستجو" />
         </div>
@@ -70,7 +71,7 @@ export function CatalogFilters({ brands, total }: { brands: string[]; total: num
           <option value="year_desc">جدیدترین مدل</option>
           <option value="mileage_asc">کم‌کارکردترین</option>
         </Select>
-        <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className={cn("flex h-12 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-medium transition", open ? "border-gold/50 bg-gold/10 text-gold" : "border-line text-muted hover:text-ink")}>
+        <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className={cn("flex h-12 items-center justify-center gap-2 rounded-xl border px-3 text-sm font-medium whitespace-nowrap transition sm:px-4", open ? "border-gold/50 bg-gold/10 text-gold" : "border-line text-muted hover:text-ink")}>
           <SlidersHorizontal className="size-4" />فیلتر بیشتر
         </button>
       </div>
@@ -87,15 +88,15 @@ export function CatalogFilters({ brands, total }: { brands: string[]; total: num
                 <option value="">همه‌ی وضعیت‌ها</option>
                 {Object.entries(STATUS_LABEL).map(([k, l]) => (<option key={k} value={k}>{l}</option>))}
               </Select>
-              <div className="grid grid-cols-2 gap-2"><label className="space-y-1"><span className="text-xs text-faint">از سال</span>{num("yearMin")}</label><label className="space-y-1"><span className="text-xs text-faint">تا سال</span>{num("yearMax")}</label></div>
+              <div className="grid grid-cols-2 gap-2"><label className="min-w-0 space-y-1"><span className="text-xs text-faint">از سال</span>{num("yearMin")}</label><label className="space-y-1"><span className="text-xs text-faint">تا سال</span>{num("yearMax")}</label></div>
               <div className="grid grid-cols-2 gap-2"><label className="space-y-1"><span className="text-xs text-faint">حداقل قیمت (درهم)</span>{num("priceMin")}</label><label className="space-y-1"><span className="text-xs text-faint">حداکثر قیمت (درهم)</span>{num("priceMax")}</label></div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="mt-4 flex items-center justify-between text-sm text-muted">
-        <span className={cn("transition-opacity", pending && "animate-pulse")}>{new Intl.NumberFormat("fa-IR").format(total)} خودرو یافت شد</span>
+      <div className="mt-4 flex items-center justify-between gap-3 text-sm text-muted">
+        <span className={cn("transition-opacity wrap-anywhere", pending && "animate-pulse")}>{new Intl.NumberFormat("fa-IR").format(total)} خودرو یافت شد</span>
         {hasFilters && (
           <button onClick={() => { setSearch(""); setPushed(""); clearTimeout(timer.current); start(() => router.replace(pathname, { scroll: false })); }} className="flex items-center gap-1.5 text-gold transition hover:brightness-125"><RotateCcw className="size-4" />پاک کردن فیلترها</button>
         )}

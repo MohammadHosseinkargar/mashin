@@ -255,8 +255,6 @@ export async function runSync(options: SyncOptions = {}): Promise<SyncResult> {
   let totalResults = Math.max(0, settings.totalResults || 0);
 
   // Only import cars 2023 and newer — ignore older vehicles entirely
-  const MIN_YEAR = 2023;
-
   let done = false;
   let blocked = false;
   let budgetHit = false;

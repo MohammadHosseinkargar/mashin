@@ -17,7 +17,7 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
           <h3 className="mb-4 font-bold">دسترسی سریع</h3>
           <ul className="space-y-2.5 text-sm text-muted">
             {[["/catalog", "کاتالوگ خودرو"], ["/#calculator", "ماشین‌حساب قیمت"], ["/about", "درباره ما"], ["/contact", "درخواست مشاوره"]].map(([h, l]) => (
-              <li key={h}><Link href={h} className="transition hover:text-gold hover:ps-1">{l}</Link></li>
+              <li key={h} className="min-w-0"><Link href={h} className="transition hover:text-gold hover:ps-1 truncate block">{l}</Link></li>
             ))}
           </ul>
         </div>

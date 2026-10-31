@@ -56,7 +56,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[17rem_1fr]">
       <aside className="card-surface sticky top-0 hidden h-dvh border-y-0 border-s-0 lg:block">{sidebar}</aside>
-      <header className="glass sticky top-0 z-40 flex items-center justify-between px-4 py-3 lg:hidden">
+      <header className="glass sticky top-0 z-40 flex items-center justify-between px-4 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top))] lg:hidden">
         <Logo title="پنل مدیریت" />
         <button onClick={() => setOpen(true)} className="grid size-10 place-items-center rounded-xl border border-line" aria-label="منو"><Menu className="size-5" /></button>
       </header>
@@ -64,7 +64,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         {open && (
           <motion.div className="fixed inset-0 z-[90] lg:hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <div className="absolute inset-0 bg-black/70" onClick={() => setOpen(false)} />
-            <motion.aside initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ type: "spring", stiffness: 320, damping: 34 }} className="card-surface absolute inset-y-0 end-0 w-72">{sidebar}</motion.aside>
+            <motion.aside initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }} transition={{ type: "spring", stiffness: 320, damping: 34 }} className="card-surface absolute inset-y-0 end-0 w-72">{sidebar}</motion.aside>
           </motion.div>
         )}
       </AnimatePresence>

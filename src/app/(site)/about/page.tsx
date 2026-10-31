@@ -21,7 +21,7 @@ const FAQ = [
 
 export default function AboutPage() {
   return (
-    <div className="mx-auto max-w-5xl px-4 pt-32 sm:px-6 sm:pt-40">
+    <div className="mx-auto max-w-5xl px-4 pt-8 sm:px-6 sm:pt-14">
       <Reveal>
         <SectionTitle eyebrow="درباره ما" title={<>واردات خودرو، <span className="gradient-text">بدون ابهام</span></>} text="ترنم شرق چابهار، از چابهار، با یک هدف ساده شکل گرفت: خرید خودرو از امارات باید به اندازه‌ی خرید از یک نمایشگاه معتبر، شفاف و قابل‌اعتماد باشد." />
       </Reveal>
@@ -38,13 +38,13 @@ export default function AboutPage() {
         ))}
       </Stagger>
 
-      <section className="mt-24">
+      <section className="mt-16 sm:mt-24">
         <Reveal><SectionTitle center eyebrow="پرسش‌های متداول" title="هر چه باید بدانید" /></Reveal>
         <Reveal><Faq items={FAQ} /></Reveal>
       </section>
 
       <Reveal>
-        <div className="mt-20 flex flex-col items-center gap-5 rounded-[2rem] border border-gold/20 bg-gradient-to-b from-gold/10 to-transparent p-10 text-center">
+        <div className="mt-16 flex flex-col items-center gap-5 rounded-[2rem] border border-gold/20 bg-gradient-to-b from-gold/10 to-transparent p-6 text-center sm:mt-20 sm:p-10">
           <h2 className="text-2xl font-black">آماده‌اید خودروی بعدی‌تان را پیدا کنیم؟</h2>
           <div className="flex flex-wrap justify-center gap-3"><LinkButton href="/catalog" size="lg">کاتالوگ خودرو</LinkButton><LinkButton href="/contact" variant="outline" size="lg">تماس با ما</LinkButton></div>
         </div>

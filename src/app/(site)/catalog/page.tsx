@@ -15,6 +15,7 @@ const PAGE_SIZE = 12;
 type SP = Record<string, string | string[] | undefined>;
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) || undefined;
 const int = (v: string | string[] | undefined) => { const n = Number(one(v)); return Number.isFinite(n) && n > 0 ? Math.floor(n) : undefined; };
+const yearMaxOf = (v: number | undefined) => (v && v >= 2023 ? Math.floor(v) : 9999);
 
 /** با هزاران صفحه، فقط صفحه‌های نزدیکِ جاری (به‌همراه اول و آخر) نمایش داده می‌شوند. */
 function pageWindow(current: number, total: number): Array<number | "gap"> {
@@ -41,7 +42,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
   const query: VehicleQuery = {
     publishedOnly: true,
     search: one(sp.search), brand: one(sp.brand), fuelType: one(sp.fuelType), transmission: one(sp.transmission), status: one(sp.status),
-    yearMin: int(sp.yearMin) ?? 2023, yearMax: 9999, priceMin: int(sp.priceMin), priceMax: int(sp.priceMax),
+    yearMin: int(sp.yearMin) ?? 2023, yearMax: yearMaxOf(int(sp.yearMax)), priceMin: int(sp.priceMin), priceMax: int(sp.priceMax),
     sort: (["price_asc", "price_desc", "year_desc", "mileage_asc"].includes(sort ?? "") ? sort : "newest") as VehicleQuery["sort"],
     yearOnly: true, // فقط خودروهای بالای ۲۰۲۳
     limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE,
@@ -58,7 +59,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 pt-32 sm:px-6 sm:pt-36">
+    <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 sm:pt-10">
       <Reveal><SectionTitle eyebrow="کاتالوگ" title="خودروهای آماده‌ی واردات" text="خودروی دلخواهتان را پیدا کنید؛ قیمت نهایی با نرخ روز و تمام هزینه‌ها محاسبه شده است." /></Reveal>
       <Suspense fallback={<div className="skeleton h-40 rounded-3xl" />}><CatalogFilters brands={brands} total={total} /></Suspense>
 
@@ -73,16 +74,17 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
       </div>
 
       {pages > 1 && (
-        <nav aria-label="صفحه‌بندی" className="mt-12 flex items-center justify-center gap-2">
-          <Link aria-disabled={page <= 1} href={href(Math.max(1, page - 1))} className={cn("grid size-11 place-items-center rounded-xl border border-line transition hover:border-gold/50", page <= 1 && "pointer-events-none opacity-40")}><ChevronRight className="size-5" /></Link>
+        <nav aria-label="صفحه‌بندی" className="mt-10 flex items-center justify-center gap-2 sm:mt-12">
+          <Link aria-disabled={page <= 1} href={href(Math.max(1, page - 1))} className={cn("grid size-11 place-items-center rounded-xl border border-line transition hover:border-gold/50", page <= 1 && "pointer-events-none opacity-40")} aria-label="صفحه‌ی قبل"><ChevronRight className="size-5" /></Link>
+          <span className="rounded-xl border border-line px-4 py-2.5 text-sm font-bold sm:hidden">صفحه {toFa(page)} از {toFa(pages)}</span>
           {pageWindow(page, pages).map((p, i) =>
             p === "gap" ? (
-              <span key={`gap-${i}`} aria-hidden className="grid size-11 place-items-center text-muted">…</span>
+              <span key={`gap-${i}`} aria-hidden className="hidden size-11 place-items-center text-muted sm:grid">…</span>
             ) : (
-              <Link key={p} href={href(p)} aria-current={p === page ? "page" : undefined} className={cn("grid size-11 place-items-center rounded-xl border text-sm font-bold transition", p === page ? "border-transparent bg-gradient-to-br from-gold to-amber text-[#1a1204]" : "border-line text-muted hover:border-gold/50 hover:text-ink")}>{toFa(p)}</Link>
+              <Link key={p} href={href(p)} aria-current={p === page ? "page" : undefined} className={cn("hidden size-11 place-items-center rounded-xl border text-sm font-bold transition sm:grid", p === page ? "border-transparent bg-gradient-to-br from-gold to-amber text-[#1a1204]" : "border-line text-muted hover:border-gold/50 hover:text-ink")}>{toFa(p)}</Link>
             )
           )}
-          <Link aria-disabled={page >= pages} href={href(Math.min(pages, page + 1))} className={cn("grid size-11 place-items-center rounded-xl border border-line transition hover:border-gold/50", page >= pages && "pointer-events-none opacity-40")}><ChevronLeft className="size-5" /></Link>
+          <Link aria-disabled={page >= pages} href={href(Math.min(pages, page + 1))} className={cn("grid size-11 place-items-center rounded-xl border border-line transition hover:border-gold/50", page >= pages && "pointer-events-none opacity-40")} aria-label="صفحه‌ی بعد"><ChevronLeft className="size-5" /></Link>
         </nav>
       )}
     </div>

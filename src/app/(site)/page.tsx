@@ -6,7 +6,6 @@ import { HeroScene } from "@/components/hero-scene";
 import { VehicleCard } from "@/components/vehicle-card";
 import { PriceCalculator } from "@/components/price-calculator";
 import { ConsultForm } from "@/components/consult-form";
-import { SectionTitle as UiSectionTitle } from "@/components/ui";
 
 const STEPS = [
   { icon: Search, title: "انتخاب خودرو", text: "از کاتالوگ خودروی مدنظرتان را انتخاب کنید یا مشخصاتش را به ما بگویید." },
@@ -33,22 +32,22 @@ export default async function HomePage() {
   return (
     <>
       {/* HERO */}
-      <section className="noise relative isolate overflow-hidden pt-32 pb-20 sm:pt-40 sm:pb-28">
+      <section className="noise relative isolate -mt-[calc(var(--header-h)+env(safe-area-inset-top))] overflow-hidden pt-[calc(var(--header-h)+env(safe-area-inset-top)+2.5rem)] pb-16 sm:pb-24 lg:pt-[calc(var(--header-h)+env(safe-area-inset-top)+4rem)]">
         <div className="bg-grid absolute inset-0 -z-10" />
-        <div className="absolute -top-40 end-[-10%] -z-10 size-[620px] rounded-full bg-sky/15 blur-[130px]" />
-        <div className="mx-auto grid max-w-7xl items-center gap-14 px-4 sm:px-6 lg:grid-cols-[1.05fr_1fr]">
-          <div className="space-y-7">
+        <div className="absolute -top-40 end-[-10%] -z-10 size-[420px] rounded-full bg-[radial-gradient(closest-side,rgb(93_123_255/.22),transparent)] sm:size-[620px]" />
+        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 sm:gap-14 sm:px-6 lg:grid-cols-[1.05fr_1fr]">
+          <div className="min-w-0 space-y-6 sm:space-y-7">
             <Reveal><span className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-4 py-1.5 text-sm font-semibold text-gold"><Sparkles className="size-4" />واردات خودرو از امارات، از چابهار</span></Reveal>
             <Reveal delay={0.1}>
-              <h1 className="text-4xl font-black leading-[1.35] sm:text-5xl lg:text-[3.6rem]">
+              <h1 className="text-[2rem] font-black leading-[1.4] sm:text-5xl lg:text-[3.6rem]">
                 خودروی رویایی‌ات را <span className="gradient-text">شفاف و مطمئن</span><br />از امارات وارد کن
               </h1>
             </Reveal>
-            <Reveal delay={0.2}><p className="max-w-xl text-lg leading-9 text-muted">قیمت نهایی را همین حالا با نرخ روز و تمام هزینه‌های واردات ببین؛ از انتخاب تا ترخیص، ترنم شرق چابهار همراهت است.</p></Reveal>
+            <Reveal delay={0.2}><p className="max-w-xl text-base leading-8 text-muted sm:text-lg sm:leading-9">قیمت نهایی را همین حالا با نرخ روز و تمام هزینه‌های واردات ببین؛ از انتخاب تا ترخیص، ترنم شرق چابهار همراهت است.</p></Reveal>
             <Reveal delay={0.3}>
               <div className="flex flex-wrap gap-3">
-                <LinkButton href="/catalog" size="lg">مشاهده‌ی کاتالوگ<ArrowLeft className="size-5" /></LinkButton>
-                <LinkButton href="/#calculator" variant="outline" size="lg"><Calculator className="size-5" />محاسبه‌ی قیمت</LinkButton>
+                <LinkButton href="/catalog" size="lg" className="max-sm:h-12 max-sm:flex-1 max-sm:px-5">مشاهده‌ی کاتالوگ<ArrowLeft className="size-5" /></LinkButton>
+                <LinkButton href="/#calculator" variant="outline" size="lg" className="max-sm:h-12 max-sm:flex-1 max-sm:px-5"><Calculator className="size-5" />محاسبه‌ی قیمت</LinkButton>
               </div>
             </Reveal>
           </div>
@@ -83,7 +82,7 @@ export default async function HomePage() {
       )}
 
       {/* FEATURED */}
-      <section className="mx-auto mt-24 max-w-7xl px-4 sm:px-6">
+      <section className="mx-auto mt-16 max-w-7xl px-4 sm:mt-24 sm:px-6">
         <Reveal>
           <div className="flex flex-wrap items-end justify-between gap-4">
             <SectionTitle eyebrow="تازه‌ترین‌ها" title="خودروهای منتخب" text="جدیدترین خودروهای آماده‌ی واردات با برآورد قیمت نهایی." />
@@ -100,7 +99,7 @@ export default async function HomePage() {
       </section>
 
       {/* STEPS */}
-      <section className="mx-auto mt-28 max-w-7xl px-4 sm:px-6">
+      <section className="mx-auto mt-20 max-w-7xl px-4 sm:mt-28 sm:px-6">
         <Reveal><SectionTitle center eyebrow="مسیر خرید" title="چهار قدم تا خودروی شما" text="فرایندی ساده و قابل‌پیگیری، بدون پیچیدگی." /></Reveal>
         <Stagger className="relative grid gap-6 md:grid-cols-2 lg:grid-cols-4" gap={0.12}>
           <div className="absolute inset-x-[12%] top-12 hidden h-px bg-gradient-to-l from-transparent via-gold/40 to-transparent lg:block" />
@@ -116,12 +115,12 @@ export default async function HomePage() {
       </section>
 
       {/* CALCULATOR */}
-      <section id="calculator" className="mx-auto mt-28 max-w-6xl scroll-mt-28 px-4 sm:px-6">
+      <section id="calculator" className="mx-auto mt-20 max-w-6xl px-4 sm:mt-28 sm:px-6">
         <Reveal><PriceCalculator rate={rate.rate} fees={fees} /></Reveal>
       </section>
 
       {/* BENEFITS */}
-      <section className="mx-auto mt-28 max-w-7xl px-4 sm:px-6">
+      <section className="mx-auto mt-20 max-w-7xl px-4 sm:mt-28 sm:px-6">
         <Reveal><SectionTitle center eyebrow="چرا ترنم شرق چابهار" title="خرید با خیال راحت" /></Reveal>
         <Stagger className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {BENEFITS.map((b) => (
@@ -135,7 +134,7 @@ export default async function HomePage() {
       </section>
 
       {/* CTA */}
-      <section className="mx-auto mt-28 max-w-6xl px-4 sm:px-6">
+      <section className="mx-auto mt-20 max-w-6xl px-4 sm:mt-28 sm:px-6">
         <Reveal>
           <div className="noise relative grid overflow-hidden rounded-[2rem] border border-gold/20 bg-gradient-to-bl from-gold/12 via-surface to-surface p-6 sm:p-12 lg:grid-cols-2 lg:gap-12">
             <div className="absolute -start-24 -bottom-24 size-80 rounded-full bg-gold/15 blur-[90px]" />

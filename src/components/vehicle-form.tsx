@@ -103,7 +103,7 @@ export function VehicleForm({ vehicle }: { vehicle?: Vehicle }) {
 
   const card = "card-surface space-y-5 rounded-3xl p-6";
   return (
-    <form onSubmit={submit} className="grid gap-6 xl:grid-cols-[1.6fr_1fr]">
+    <form onSubmit={submit} className="grid gap-6 overflow-hidden xl:grid-cols-[1.6fr_1fr]">
       <div className="space-y-6">
         <section className={card}>
           <h2 className="font-black">اطلاعات اصلی</h2>

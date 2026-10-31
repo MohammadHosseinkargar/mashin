@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   const s = await db.getSettings();
   return (
-    <SiteShell title={s.siteTitle}>
+    <SiteShell title={s.siteTitle} whatsapp={s.whatsappNumber ? { number: s.whatsappNumber, message: s.whatsappMessage } : undefined}>
       {children}
       <SiteFooter settings={s} />
     </SiteShell>

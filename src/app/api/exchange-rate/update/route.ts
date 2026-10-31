@@ -9,4 +9,4 @@ export const GET = route(async () => {
   } else {
     return fail(result.error || "خطا در دریافت نرخ ارز از API", 500);
   }
-});
+}, { admin: true });

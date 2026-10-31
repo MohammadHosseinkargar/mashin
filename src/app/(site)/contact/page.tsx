@@ -18,7 +18,7 @@ export default async function ContactPage() {
   ].filter(Boolean) as { icon: typeof Phone; label: string; value: string; href?: string; ltr?: boolean }[];
 
   return (
-    <div className="mx-auto max-w-6xl px-4 pt-32 sm:px-6 sm:pt-40">
+    <div className="mx-auto max-w-6xl px-4 pt-8 sm:px-6 sm:pt-14">
       <Reveal><SectionTitle eyebrow="تماس با ما" title="بیایید درباره‌ی خودروی بعدی‌تان حرف بزنیم" text="فرم را پر کنید؛ کارشناسان ما در اولین فرصت تماس می‌گیرند." /></Reveal>
       <div className="grid gap-8 lg:grid-cols-[1.2fr_1fr]">
         <Reveal x={30} y={0}><div className="card-surface rounded-3xl p-6 sm:p-8"><ConsultForm /></div></Reveal>

@@ -1,24 +1,21 @@
 "use client";
 
-import { usePathname } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { BottomNav } from "@/components/bottom-nav";
 import { InstallPrompt } from "@/components/install-prompt";
-import { GlobalHeadScript } from "@/app/global-head-script";
+import { WhatsAppFab } from "@/components/whatsapp-fab";
 
-export function SiteShell({ children, title }: { children: React.ReactNode; title?: string }) {
-  const pathname = usePathname();
-  const mobile = typeof window !== "undefined" && window.innerWidth < 640;
+export function SiteShell({ children, title, whatsapp }: { children: React.ReactNode; title?: string; whatsapp?: { number: string; message: string } }) {
   return (
     <div className="min-h-dvh">
       <SiteHeader title={title ?? "ترنم شرق چابهار"} />
-      <main className="pb-24 sm:pb-14">
+      {/* فضای هدر ثابت بالا و نوار پایینِ موبایل اینجا یک‌بار رزرو می‌شود؛ صفحه‌ها padding اضافه نمی‌گذارند. */}
+      <main className="pt-[calc(var(--header-h)+env(safe-area-inset-top))] pb-[calc(var(--nav-h)+env(safe-area-inset-bottom))] md:pb-0">
         {children}
       </main>
-      <GlobalHeadScript />
-      {/* bottom ios-style nav only on small screens */}
-      {mobile && <BottomNav />}
-      <InstallPrompt className="pointer-events-none" />
+      <BottomNav />
+      {whatsapp && <WhatsAppFab number={whatsapp.number} message={whatsapp.message} />}
+      <InstallPrompt />
     </div>
   );
 }

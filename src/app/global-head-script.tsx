@@ -28,7 +28,6 @@ export function GlobalHeadScript() {
       <meta name="apple-mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       <meta name="apple-mobile-web-app-title" content="ترنم شرق" />
-      <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#f6bd4f" />
       <meta name="theme-color" content="#070a12" />
     </>
   );

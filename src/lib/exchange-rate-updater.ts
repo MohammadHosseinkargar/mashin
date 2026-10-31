@@ -1,14 +1,6 @@
 
 import { db } from "./db";
 
-interface PriceToResponse {
-  success: boolean;
-  price: number;
-  high: number;
-  low: number;
-  time: string;
-}
-
 /**
  * Fetch the latest AED to IRR exchange rate from the external API
  * and update the database
@@ -54,6 +46,8 @@ export async function updateExchangeRate(): Promise<{
           method: "GET",
           headers: { accept: "application/json", "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36", "Accept-Language": "en-US,en;q=0.9", ...(s.headers ?? {}) },
           cache: "no-store",
+          // بدون وقفه، یک منبع کند می‌تواند کل درخواست را قفل کند
+          signal: AbortSignal.timeout(8000),
         });
         if (!res.ok) return { ok: false, name: s.name, rate: null as number | null };
         const body = await res.json();
