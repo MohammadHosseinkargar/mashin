@@ -44,7 +44,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
     search: one(sp.search), brand: one(sp.brand), fuelType: one(sp.fuelType), transmission: one(sp.transmission), status: one(sp.status),
     yearMin: int(sp.yearMin) ?? 2023, yearMax: yearMaxOf(int(sp.yearMax)), priceMin: int(sp.priceMin), priceMax: int(sp.priceMax),
     sort: (["price_asc", "price_desc", "year_desc", "mileage_asc"].includes(sort ?? "") ? sort : "newest") as VehicleQuery["sort"],
-    yearOnly: true, // فقط خودروهای بالای ۲۰۲۳
+    yearOnly: true,
     limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE,
   };
   const [{ items, total }, rate, fees, brands] = await Promise.all([
@@ -59,32 +59,34 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 sm:pt-10">
+    <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-10">
       <Reveal><SectionTitle eyebrow="کاتالوگ" title="خودروهای آماده‌ی واردات" text="خودروی دلخواهتان را پیدا کنید؛ قیمت نهایی با نرخ روز و تمام هزینه‌ها محاسبه شده است." /></Reveal>
       <Suspense fallback={<div className="skeleton h-40 rounded-3xl" />}><CatalogFilters brands={brands} total={total} /></Suspense>
 
-      <div className="mt-8">
+      <div className="mt-6 overflow-x-clip">
         {items.length === 0 ? (
           <EmptyState icon={<SearchX className="size-8" />} title="خودرویی با این مشخصات پیدا نشد" text="فیلترها را تغییر دهید یا برای پیدا کردن خودروی دلخواه با ما تماس بگیرید." action={<LinkButton href="/contact" variant="outline">درخواست مشاوره</LinkButton>} />
         ) : (
-          <Stagger key={JSON.stringify(sp)} className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" gap={0.06}>
-            {items.map((v) => (<StaggerItem key={v.id}><VehicleCard vehicle={v} rate={rate.rate} fees={fees} /></StaggerItem>))}
+          <Stagger key={JSON.stringify(sp)} className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" gap={0.06}>
+            {items.map((v) => (<StaggerItem key={v.id} className="min-w-0"><VehicleCard vehicle={v} rate={rate.rate} fees={fees} /></StaggerItem>))}
           </Stagger>
         )}
       </div>
 
       {pages > 1 && (
-        <nav aria-label="صفحه‌بندی" className="mt-10 flex items-center justify-center gap-2 sm:mt-12">
-          <Link aria-disabled={page <= 1} href={href(Math.max(1, page - 1))} className={cn("grid size-11 place-items-center rounded-xl border border-line transition hover:border-gold/50", page <= 1 && "pointer-events-none opacity-40")} aria-label="صفحه‌ی قبل"><ChevronRight className="size-5" /></Link>
-          <span className="rounded-xl border border-line px-4 py-2.5 text-sm font-bold sm:hidden">صفحه {toFa(page)} از {toFa(pages)}</span>
-          {pageWindow(page, pages).map((p, i) =>
-            p === "gap" ? (
-              <span key={`gap-${i}`} aria-hidden className="hidden size-11 place-items-center text-muted sm:grid">…</span>
-            ) : (
-              <Link key={p} href={href(p)} aria-current={p === page ? "page" : undefined} className={cn("hidden size-11 place-items-center rounded-xl border text-sm font-bold transition sm:grid", p === page ? "border-transparent bg-gradient-to-br from-gold to-amber text-[#1a1204]" : "border-line text-muted hover:border-gold/50 hover:text-ink")}>{toFa(p)}</Link>
-            )
-          )}
-          <Link aria-disabled={page >= pages} href={href(Math.min(pages, page + 1))} className={cn("grid size-11 place-items-center rounded-xl border border-line transition hover:border-gold/50", page >= pages && "pointer-events-none opacity-40")} aria-label="صفحه‌ی بعد"><ChevronLeft className="size-5" /></Link>
+        <nav aria-label="صفحه‌بندی" className="mt-8 flex items-center justify-center gap-2 overflow-x-auto sm:mt-10">
+          <div className="flex items-center gap-2">
+            <span className="rounded-xl border border-line px-4 py-2.5 text-sm font-bold sm:hidden">صفحه {toFa(page)} از {toFa(pages)}</span>
+            <Link aria-disabled={page <= 1} href={href(Math.max(1, page - 1))} className={cn("grid size-11 place-items-center rounded-xl border border-line transition hover:border-gold/50", page <= 1 && "pointer-events-none opacity-40")} aria-label="صفحه‌ی قبل"><ChevronRight className="size-5" /></Link>
+            {pageWindow(page, pages).map((p, i) =>
+              p === "gap" ? (
+                <span key={`gap-${i}`} aria-hidden className="size-11 place-items-center text-muted">…</span>
+              ) : (
+                <Link key={p} href={href(p)} aria-current={p === page ? "page" : undefined} className={cn("size-11 place-items-center rounded-xl border text-sm font-bold transition", p === page ? "border-transparent bg-gradient-to-br from-gold to-amber text-[#1a1204]" : "border-line text-muted hover:border-gold/50 hover:text-ink")}>{toFa(p)}</Link>
+              )
+            )}
+            <Link aria-disabled={page >= pages} href={href(Math.min(pages, page + 1))} className={cn("grid size-11 place-items-center rounded-xl border border-line transition hover:border-gold/50", page >= pages && "pointer-events-none opacity-40")} aria-label="صفحه‌ی بعد"><ChevronLeft className="size-5" /></Link>
+          </div>
         </nav>
       )}
     </div>
