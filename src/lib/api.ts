@@ -31,12 +31,33 @@ export type IdCtx = { params: Promise<{ id: string }> };
 
 /** محدودکننده‌ی ساده‌ی نرخ درخواست (در حافظه) */
 const hits = new Map<string, number[]>();
-export function rateLimited(key: string, max: number, windowMs: number): boolean {
+
+function prune(key: string, windowMs: number): number[] {
   const now = Date.now();
   const list = (hits.get(key) ?? []).filter((t) => now - t < windowMs);
-  if (list.length >= max) { hits.set(key, list); return true; }
-  list.push(now);
   hits.set(key, list);
   if (hits.size > 5000) for (const [k, v] of hits) if (!v.some((t) => now - t < windowMs)) hits.delete(k);
+  return list;
+}
+
+/** فقط بررسی می‌کند؛ تلاشی ثبت نمی‌کند */
+export function isRateLimited(key: string, max: number, windowMs: number): boolean {
+  return prune(key, windowMs).length >= max;
+}
+
+/** ثبت یک تلاش (برای شمارنده‌هایی که فقط بعد از شکست جلو می‌روند) */
+export function recordAttempt(key: string, windowMs: number): void {
+  prune(key, windowMs).push(Date.now());
+}
+
+/** پاک‌کردن شمارنده (مثلاً بعد از لاگین موفق) */
+export function clearAttempts(key: string): void {
+  hits.delete(key);
+}
+
+export function rateLimited(key: string, max: number, windowMs: number): boolean {
+  const list = prune(key, windowMs);
+  if (list.length >= max) return true;
+  list.push(Date.now());
   return false;
 }

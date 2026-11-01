@@ -1,5 +1,14 @@
 "use client";
 
+/** خطای API با کد وضعیت — برای تشخیص حالت‌هایی مثل 429 (محدودیت تلاش) در UI */
+export class ApiError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.status = status;
+  }
+}
+
 /** فراخوانی API و برگرداندن data؛ در خطا Error با پیام فارسی پرتاب می‌شود. */
 export async function api<T>(url: string, init?: RequestInit & { json?: unknown }): Promise<T> {
   const { json, ...rest } = init ?? {};
@@ -20,6 +29,6 @@ export async function api<T>(url: string, init?: RequestInit & { json?: unknown 
     // eslint-disable-next-line @next/next/no-location-assign-relative-destination
     window.location.href = "/admin/login";
   }
-  if (!res.ok || !payload?.success) throw new Error(payload?.error || "خطایی رخ داد. دوباره تلاش کنید.");
+  if (!res.ok || !payload?.success) throw new ApiError(payload?.error || "خطایی رخ داد. دوباره تلاش کنید.", res.status);
   return payload.data as T;
 }

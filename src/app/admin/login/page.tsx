@@ -5,7 +5,7 @@ import { Eye, EyeOff, Lock, LogIn, User } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { toast } from "sonner";
-import { api } from "@/lib/client-api";
+import { api, ApiError } from "@/lib/client-api";
 import { Button, Input } from "@/components/ui";
 import { Logo } from "@/components/site-header";
 
@@ -17,17 +17,22 @@ function LoginForm() {
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
   const [shake, setShake] = useState(0);
+  const [formError, setFormError] = useState<string | null>(null);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (loading) return;
     setLoading(true);
+    setFormError(null);
     try {
       await api("/api/admin/login", { method: "POST", json: { username, password } });
       // رفرش کامل صفحه برای اطمینان از اینکه کوکی نشست اعمال شده و میدلور recognising session است
       window.location.href = (sp.get("redirect") && sp.get("redirect")!.startsWith("/admin") && !sp.get("redirect")!.startsWith("//")) ? sp.get("redirect")! : "/admin";
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "ورود ناموفق بود.");
+      const msg = err instanceof Error ? err.message : "ورود ناموفق بود.";
+      // 429 = محدودیت تلاش؛ پیام ثابت زیر دکمه تا کاربر دلیل قفل‌شدن را ببیند
+      if (err instanceof ApiError && err.status === 429) setFormError(msg);
+      toast.error(msg);
       setShake((s) => s + 1);
       setLoading(false);
     }
@@ -54,6 +59,7 @@ function LoginForm() {
         </div>
       </label>
       <Button type="submit" size="lg" loading={loading} className="w-full"><LogIn className="size-5" />ورود</Button>
+      {formError && <p role="alert" className="rounded-xl border border-rose/30 bg-rose/10 px-4 py-3 text-center text-sm text-rose">{formError}</p>}
     </motion.form>
   );
 }

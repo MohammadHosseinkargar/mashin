@@ -1,4 +1,5 @@
 // امضای نشست با HMAC-SHA256 (Web Crypto) — هم در proxy و هم در route handler کار می‌کند.
+import type { NextRequest } from "next/server";
 export const SESSION_COOKIE = "admin_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 12;
 
@@ -48,10 +49,15 @@ export function checkCredentials(username: string, password: string): boolean {
   return safeEqual(username, u) && safeEqual(password, p);
 }
 
-export const sessionCookieOptions = {
-  httpOnly: true,
-  sameSite: "lax" as const,
-  secure: process.env.NODE_ENV === "production",
-  path: "/",
-  maxAge: SESSION_TTL_SECONDS,
-};
+/** پرچم Secure را بر اساس پروتکل واقعی درخواست می‌گذارد: مرورگر کوکی Secure روی HTTP غیر-لوکالاست (IP شبکه یا دامنه بدون HTTPS) ذخیره می‌کند و نشست هرگز ذخیره نمی‌شود و کاربر از پنل به صفحه لاگین برمی‌گردد. */
+export function sessionCookieOptions(req: NextRequest) {
+  const forwarded = req.headers.get("x-forwarded-proto")?.split(",")[0].trim();
+  const proto = forwarded || req.nextUrl.protocol.replace(":", "");
+  return {
+    httpOnly: true,
+    sameSite: "lax" as const,
+    secure: proto === "https",
+    path: "/",
+    maxAge: SESSION_TTL_SECONDS,
+  };
+}
