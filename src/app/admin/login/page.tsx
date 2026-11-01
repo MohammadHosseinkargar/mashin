@@ -24,9 +24,8 @@ function LoginForm() {
     setLoading(true);
     try {
       await api("/api/admin/login", { method: "POST", json: { username, password } });
-      const to = sp.get("redirect");
-      router.replace(to && to.startsWith("/admin") && !to.startsWith("//") ? to : "/admin");
-      router.refresh();
+      // رفرش کامل صفحه برای اطمینان از اینکه کوکی نشست اعمال شده و میدلور recognising session است
+      window.location.href = (sp.get("redirect") && sp.get("redirect")!.startsWith("/admin") && !sp.get("redirect")!.startsWith("//")) ? sp.get("redirect")! : "/admin";
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "ورود ناموفق بود.");
       setShake((s) => s + 1);
