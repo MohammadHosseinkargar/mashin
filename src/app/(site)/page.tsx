@@ -43,7 +43,7 @@ export default async function HomePage() {
                 خودروی رویایی‌ات را <span className="gradient-text">شفاف و مطمئن</span><br />از امارات وارد کن
               </h1>
             </Reveal>
-            <Reveal delay={0.2}><p className="max-w-xl text-base leading-8 text-muted sm:text-lg sm:leading-9">قیمت نهایی را همین حالا با نرخ روز و تمام هزینه‌های واردات ببین؛ از انتخاب تا ترخیص، ترنم شرق چابهار همراهت است.</p></Reveal>
+            <Reveal delay={0.2}><p className="max-w-xl text-base leading-8 text-muted sm:text-lg sm:leading-9">قیمت نهایی را همین حالا با نرخ روز و تمام هزینه‌های واردات ببین؛ از انتخاب تا ترخیص، گاراژ همراهت است.</p></Reveal>
             <Reveal delay={0.3}>
               <div className="flex flex-wrap gap-3">
                 <LinkButton href="/catalog" size="lg" className="max-sm:h-12 max-sm:flex-1 max-sm:px-5">مشاهده‌ی کاتالوگ<ArrowLeft className="size-5" /></LinkButton>
@@ -121,7 +121,7 @@ export default async function HomePage() {
 
       {/* BENEFITS */}
       <section className="mx-auto mt-20 max-w-7xl px-4 sm:mt-28 sm:px-6">
-        <Reveal><SectionTitle center eyebrow="چرا ترنم شرق چابهار" title="خرید با خیال راحت" /></Reveal>
+        <Reveal><SectionTitle center eyebrow="چرا گاراژ" title="خرید با خیال راحت" /></Reveal>
         <Stagger className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {BENEFITS.map((b) => (
             <StaggerItem key={b.title} className="glass group rounded-3xl p-6 transition-all duration-500 hover:-translate-y-1.5 hover:border-gold/40">

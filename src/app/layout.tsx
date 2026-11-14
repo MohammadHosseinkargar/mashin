@@ -5,11 +5,11 @@ import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
-  title: { default: "ترنم شرق چابهار | واردات خودرو از امارات، از چابهار تا سراسر ایران", template: "%s | ترنم شرق چابهار" },
-  description: "خرید و واردات خودرو از امارات با قیمت نهایی شفاف، محاسبه‌ی لحظه‌ای هزینه‌ها و پشتیبانی کامل تا ترخیص؛ از مجموعه‌ی ترنم شرق چابهار.",
+  title: { default: "گاراژ | واردات خودرو از امارات، از چابهار تا سراسر ایران", template: "%s | گاراژ" },
+  description: "خرید و واردات خودرو از امارات با قیمت نهایی شفاف، محاسبه‌ی لحظه‌ای هزینه‌ها و پشتیبانی کامل تا ترخیص؛ از مجموعه‌ی گاراژ.",
   manifest: "/manifest.json",
-  appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "ترنم شرق" },
-  openGraph: { type: "website", locale: "fa_IR", siteName: "ترنم شرق چابهار" },
+  appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "گاراژ" },
+  openGraph: { type: "website", locale: "fa_IR", siteName: "گاراژ" },
   icons: {
     icon: "/icon-192.png",
     apple: "/icon-192.png",

@@ -24,14 +24,25 @@ function LoginForm() {
     if (loading) return;
     setLoading(true);
     setFormError(null);
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 20_000);
     try {
-      await api("/api/admin/login", { method: "POST", json: { username, password } });
-      // رفرش کامل صفحه برای اطمینان از اینکه کوکی نشست اعمال شده و میدلور recognising session است
-      window.location.href = (sp.get("redirect") && sp.get("redirect")!.startsWith("/admin") && !sp.get("redirect")!.startsWith("//")) ? sp.get("redirect")! : "/admin";
+      await api("/api/admin/login", { method: "POST", json: { username, password }, signal: ctrl.signal });
+      clearTimeout(timer);
+      const r = sp.get("redirect");
+      const target = r && r.startsWith("/admin") && !r.startsWith("//") && !r.startsWith("/admin/login") ? r : "/admin";
+      // ناوبری کامل تا کوکی نشست حتماً همراه درخواست بعدی برود
+      window.location.replace(target);
+      // اگر به هر دلیلی (کندی سرور/شبکه) ناوبری انجام نشد، دکمه برای همیشه نچرخد
+      setTimeout(() => {
+        setLoading(false);
+        setFormError("ورود انجام شد ولی داشبورد دیر پاسخ می‌دهد. چند ثانیه صبر کنید یا دوباره روی «ورود» بزنید.");
+      }, 15_000);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "ورود ناموفق بود.";
-      // 429 = محدودیت تلاش؛ پیام ثابت زیر دکمه تا کاربر دلیل قفل‌شدن را ببیند
-      if (err instanceof ApiError && err.status === 429) setFormError(msg);
+      clearTimeout(timer);
+      const aborted = err instanceof DOMException && err.name === "AbortError";
+      const msg = aborted ? "سرور پاسخ نداد. دوباره تلاش کنید." : err instanceof Error ? err.message : "ورود ناموفق بود.";
+      if (aborted || (err instanceof ApiError && err.status === 429)) setFormError(msg);
       toast.error(msg);
       setShake((s) => s + 1);
       setLoading(false);
@@ -46,7 +57,7 @@ function LoginForm() {
       className="glass relative w-full max-w-md space-y-5 rounded-[2rem] p-8 shadow-2xl"
     >
       <div className="flex flex-col items-center gap-3 pb-2 text-center">
-        <Logo title="ترنم شرق چابهار" />
+        <Logo title="گاراژ" />
         <p className="text-sm text-muted">برای ورود به پنل مدیریت، اطلاعات خود را وارد کنید.</p>
       </div>
       <label className="block space-y-2"><span className="text-sm text-muted">نام کاربری</span>

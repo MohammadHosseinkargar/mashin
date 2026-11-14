@@ -1,73 +1,45 @@
 #!/usr/bin/env node
 
-/** เอ็นซ์ Exchange Rate Updater Worker
+/**
+ * کرون خارجی نرخ درهم (اختیاری).
  *
- * Fetches AED/IRR exchange rate every 5 minutes
- * وي brings the latest real-time market rate from multiple live sources.
+ * در حالت عادی لازم نیست: سرور خودش (instrumentation.ts) نرخ را هر RATE_INTERVAL_SECONDS ثانیه
+ * تازه می‌کند و هر بازدید هم در صورت قدیمی‌بودن آن را در پس‌زمینه تازه می‌کند.
+ * این اسکریپت فقط برای میزبان‌هایی است که پردازش پس‌زمینه‌ی دائمی ندارند (مثل serverless).
  *
- * Usage:
- *   npm run exchange-rate:worker   # Continuous: fetches rate every 5 min
- *   npm run exchange-rate:update   # One-shot fetch (no timer)
- *
- * متغیرهای محیطی:
- *   RATE_SERVICE_URL  آدرس सर्वर (پیش‌فرض http://localhost:3000)
+ *   CRON_SECRET=... RATE_SERVICE_URL=https://سایت-شما node scripts/exchange-rate-worker.js [--once]
  */
-
-// First load env files so RATE_SERVICE_URL is available
 for (const file of [".env.local", ".env"]) {
-  try {
-    process.loadEnvFile(file);
-  } catch {}
+  try { process.loadEnvFile(file); } catch { /* فایل وجود ندارد */ }
 }
 
 const BASE = (process.env.RATE_SERVICE_URL || process.env.SITE_URL || process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/+$/, "");
-const INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
+const SECRET = (process.env.CRON_SECRET || "").trim();
+const sec = Number(process.env.RATE_INTERVAL_SECONDS);
+const INTERVAL_MS = Math.min(3600, Math.max(10, Number.isFinite(sec) && sec > 0 ? sec : 30)) * 1000;
+const ONCE = process.argv.includes("--once");
+
+if (SECRET.length < 16) {
+  console.error("✗ CRON_SECRET (حداقل ۱۶ کاراکتر) را در محیط سرور و همین‌جا تنظیم کنید؛ بدون آن سرور درخواست را رد می‌کند.");
+  process.exit(1);
+}
 
 async function tick() {
-  const timestamp = new Date().toISOString();
+  const at = new Date().toISOString();
   try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 20000);
-    let res;
-    try {
-      res = await fetch(`${BASE}/api/exchange-rate/update`, {
-        method: "GET",
-        headers: { "Accept": "application/json", "User-Agent": "ExchangeRateWorker/1.0" },
-        cache: "no-store",
-        signal: controller.signal,
-      });
-    } finally { clearTimeout(timer); }
-    const text = await res.text();
-    console.log(`[${timestamp}] Response: HTTP ${res.status}, body: ${text.slice(0,200)}`);
-    const data = JSON.parse(text);
-    const rate = data.data?.rate ?? data.rate;
-    if (data.success && rate && rate >= 7_000 && rate <= 500_000) {
-      console.log(`[${timestamp}] ✓ Exchange rate updated: ${rate} Toman/AED (${(rate * 10).toFixed(0)} Rials) — live market rate (${(rate/10/1000).toFixed(2)}/AED market, checked 7k–500k bounds)`);
-    } else {
-      console.error(`[${timestamp}] ✗ Failed to update rate: ${data.error || `unknown (rate=${rate} out of 7k–500k bounds)`}`);
-    }
-  } catch (error) {
-    console.error(
-      `[${timestamp}] ✗ Worker error:`,
-      error instanceof Error ? error.message : error
-    );
+    const res = await fetch(`${BASE}/api/exchange-rate/update`, {
+      method: "POST",
+      headers: { Accept: "application/json", Authorization: `Bearer ${SECRET}` },
+      cache: "no-store",
+      signal: AbortSignal.timeout(20_000),
+    });
+    const body = await res.json().catch(() => ({}));
+    if (res.ok && body.success) console.log(`[${at}] ${body.data?.updated ? "✓ به‌روز شد" : "= بدون تغییر"}: ${body.data?.rate} تومان/درهم (${(body.data?.sources || []).join(", ")})`);
+    else console.error(`[${at}] ✗ HTTP ${res.status}: ${body.error || "نامشخص"}`);
+  } catch (e) {
+    console.error(`[${at}] ✗ ${e.message}`);
   }
 }
 
-// Run immediately on start
-console.log(`[${new Date().toISOString()}] Exchange Rate Worker started (interval: ${INTERVAL_MS / 1000}s)`);
-tick();
-
-// Then run every 5 minutes
-setInterval(tick, INTERVAL_MS);
-
-// Graceful shutdown
-process.on("SIGINT", () => {
-  console.log(`\n[${new Date().toISOString()}] Shutting down gracefully...`);
-  process.exit(0);
-});
-
-process.on("SIGTERM", () => {
-  console.log(`\n[${new Date().toISOString()}] Shutting down gracefully...`);
-  process.exit(0);
-});
+await tick();
+if (!ONCE) setInterval(tick, INTERVAL_MS);

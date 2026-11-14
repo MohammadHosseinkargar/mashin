@@ -12,6 +12,9 @@ import type { FuelType, Transmission } from "./types";
 export const DEFAULT_SEARCH_URL =
   "https://www.dubicars.com/search?o=&did=&gen=&trg=&c=used&ul=DE&cr=AED&k=&mg=&coo=&yf=&yt=&set=bu&pf=&pt=&emif=&emit=&kf=&kt=&esf=&est=&l=3";
 
+/** حداقل سال خودروی قابل ورود به کاتالوگ */
+export const MIN_MODEL_YEAR = 2023;
+
 const USER_AGENT =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
 
@@ -426,6 +429,11 @@ function parseResultsTotal(html: string): number {
 /** تعداد کارت‌های خام صفحه (۳۰ برای صفحات کامل) */
 function countCards(html: string): number {
   return (html.match(/data-sp-item='/g) ?? []).length;
+}
+
+/** فراداده‌ی صفحه برای collector که HTML را به سرور push می‌کند. */
+export function dubicarsPageMetadata(html: string): { totalResults: number; itemCount: number } {
+  return { totalResults: parseResultsTotal(html), itemCount: countCards(html) };
 }
 
 export interface DubicarsPage {

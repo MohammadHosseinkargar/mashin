@@ -8,7 +8,7 @@ import { WhatsAppFab } from "@/components/whatsapp-fab";
 export function SiteShell({ children, title, whatsapp }: { children: React.ReactNode; title?: string; whatsapp?: { number: string; message: string } }) {
   return (
     <div className="min-h-dvh">
-      <SiteHeader title={title ?? "ترنم شرق چابهار"} />
+      <SiteHeader title={title ?? "گاراژ"} />
       {/* فضای هدر ثابت بالا و نوار پایینِ موبایل اینجا یک‌بار رزرو می‌شود؛ صفحه‌ها padding اضافه نمی‌گذارند. */}
       <main className="pt-[calc(var(--header-h)+env(safe-area-inset-top))] pb-[calc(var(--nav-h)+env(safe-area-inset-bottom))] md:pb-0">
         {children}

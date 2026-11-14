@@ -5,6 +5,8 @@ import { db } from "./db";
 import {
   DUBICARS_USER_AGENT,
   DubicarsBlockedError,
+  MIN_MODEL_YEAR,
+  dubicarsPageMetadata,
   dubicarsSearchUrl,
   fetchDubicarsPage,
   pageDelayMs,
@@ -30,6 +32,8 @@ export interface SyncOptions {
   budgetMs?: number;
   /** حداکثر صفحه در این دسته؛ ۰ یا نامشخص = تا پایان بودجه/چرخه (پیش‌فرض از DUBICARS_PAGES) */
   maxPages?: number;
+  /** fast آگهی‌های تازه را از صفحه‌ی اول می‌گیرد و cursor چرخه را تغییر نمی‌دهد. */
+  lane?: "fast" | "cycle";
 }
 
 export interface SyncResult {
@@ -54,6 +58,34 @@ export interface SyncResult {
   blocked: boolean;
   /** بودجه‌ی زمانی تمام شد؛ اجرای بعدی از همین‌جا ادامه می‌دهد */
   budgetHit: boolean;
+}
+
+export class IngestError extends Error {
+  constructor(message: string, readonly status: number = 422) {
+    super(message);
+    this.name = "IngestError";
+  }
+}
+
+export interface IngestOptions {
+  dryRun?: boolean;
+  page?: number;
+  lane?: "fast" | "cycle";
+  totalResults?: number;
+  itemCount?: number;
+}
+
+export interface IngestResult {
+  accepted: number;
+  created: number;
+  updated: number;
+  unchanged: number;
+  images: number;
+  dryRun: boolean;
+  done: boolean;
+  cursorPage: number;
+  totalPages: number;
+  totalResults: number;
 }
 
 function envInt(name: string, min: number, max: number, fallback: number): number {
@@ -230,6 +262,7 @@ function needsUpdate(v: Vehicle, next: VehicleInput): boolean {
  */
 export async function runSync(options: SyncOptions = {}): Promise<SyncResult> {
   const dryRun = Boolean(options.dryRun);
+  const lane = options.lane ?? "cycle";
   const budget = clampInt(
     options.budgetMs ?? envInt("DUBICARS_TIME_BUDGET_MS", 10_000, MAX_BUDGET_MS, DEFAULT_BUDGET_MS),
     10_000,
@@ -240,7 +273,11 @@ export async function runSync(options: SyncOptions = {}): Promise<SyncResult> {
   const searchUrl = dubicarsSearchUrl();
   const delay = pageDelayMs();
 
-  let maxPages = clampInt(options.maxPages ?? envInt("DUBICARS_PAGES", 0, 2000, 0), 0, 2000);
+  let maxPages = clampInt(
+    options.maxPages ?? (lane === "fast" ? envInt("DUBICARS_FAST_PAGES", 1, 10, 2) : envInt("DUBICARS_PAGES", 0, 2000, 0)),
+    0,
+    2000
+  );
   // اجرای آزمایشی: حداکثر ۳ صفحه تا سریع تمام شود
   if (dryRun && options.maxPages === undefined) maxPages = Math.min(maxPages || 3, 3);
 
@@ -248,7 +285,7 @@ export async function runSync(options: SyncOptions = {}): Promise<SyncResult> {
   const parsedLimit = rawImageLimit ? Number(rawImageLimit) : NaN;
   const imageLimit = Number.isFinite(parsedLimit) && parsedLimit >= 0 ? parsedLimit : 4;
 
-  let page = Math.max(1, settings.cursorPage || 1);
+  let page = lane === "fast" ? 1 : Math.max(1, settings.cursorPage || 1);
   const startPage = page;
   let fails = Math.max(0, settings.cursorFails || 0);
   let totalPages = Math.max(0, settings.totalPages || 0);
@@ -261,7 +298,6 @@ export async function runSync(options: SyncOptions = {}): Promise<SyncResult> {
   let lastError: string | null = null;
 
   // Only import cars 2023 and newer — ignore older vehicles entirely
-  const MIN_YEAR_CONST = 2023;
 
   // === aggregators (incremented during this batch) ===
   let created = 0;
@@ -315,7 +351,7 @@ export async function runSync(options: SyncOptions = {}): Promise<SyncResult> {
 
     const listings = parseDubicarsPage(fetched.html);
     // Count only filtered listings (2023+)
-    total += listings.filter(l => l.modelYear >= MIN_YEAR_CONST).length;
+    total += listings.filter(l => l.modelYear >= MIN_MODEL_YEAR).length;
 
     // حذف تکرار داخل صفحه، سپس پردازش هم‌زمان چند آگهی (سرعت دانلود عکس)
     const seen = new Set<string>();
@@ -323,7 +359,7 @@ export async function runSync(options: SyncOptions = {}): Promise<SyncResult> {
     for (const l of listings) {
       if (seen.has(l.externalId)) continue;
       // Skip vehicles older than 2023 — never imported
-      if (l.modelYear < MIN_YEAR_CONST) {
+      if (l.modelYear < MIN_MODEL_YEAR) {
         seen.add(l.externalId);
         continue;
       }
@@ -375,7 +411,7 @@ export async function runSync(options: SyncOptions = {}): Promise<SyncResult> {
 
     pages += 1;
     page += 1;
-    if (totalPages > 0 && page > totalPages) {
+    if (lane === "cycle" && totalPages > 0 && page > totalPages) {
       done = true;
       break;
     }
@@ -409,7 +445,7 @@ export async function runSync(options: SyncOptions = {}): Promise<SyncResult> {
     await db.saveImportSettings({
       lastSyncAt: new Date().toISOString(),
       lastError,
-      cursorPage: page,
+      cursorPage: lane === "fast" ? settings.cursorPage : page,
       totalPages,
       totalResults,
       cursorFails: fails,
@@ -419,4 +455,104 @@ export async function runSync(options: SyncOptions = {}): Promise<SyncResult> {
   }
 
   return result;
+}
+
+/** ذخیره‌ی آگهی‌هایی که collector بیرونی یا منبع فید به API می‌فرستد. */
+export async function ingestListings(
+  input: DubicarsListing[],
+  options: IngestOptions = {}
+): Promise<IngestResult> {
+  const dryRun = Boolean(options.dryRun);
+  const seen = new Set<string>();
+  const listings = input.filter((listing) => {
+    if (listing.modelYear < MIN_MODEL_YEAR || seen.has(listing.externalId)) return false;
+    seen.add(listing.externalId);
+    return true;
+  });
+
+  const existing = listings.length ? await db.listByExternalIds(listings.map((listing) => listing.externalId)) : [];
+  const byExternal = new Map(existing.map((vehicle) => [String(vehicle.specifications.externalId ?? ""), vehicle]));
+  let created = 0;
+  let updated = 0;
+  let unchanged = 0;
+  let freshImages = 0;
+
+  for (let i = 0; i < listings.length; i += 4) {
+    await Promise.all(listings.slice(i, i + 4).map(async (listing) => {
+      const found = byExternal.get(listing.externalId) ?? null;
+      const downloaded = dryRun
+        ? { paths: [] as (string | null)[], fresh: 0 }
+        : await downloadImages(listing, envInt("DUBICARS_IMAGES", 0, 12, 4));
+      freshImages += downloaded.fresh;
+      const data = toVehicle(listing, mergeImages(downloaded.paths, found?.images ?? [], listing));
+
+      if (found) {
+        if (!needsUpdate(found, data)) {
+          unchanged++;
+          return;
+        }
+        updated++;
+        if (!dryRun) await db.updateVehicle(found.id, data);
+        return;
+      }
+      created++;
+      if (!dryRun) await db.createVehicle(data);
+    }));
+  }
+
+  const settings = await db.getImportSettings();
+  const lane = options.lane ?? "cycle";
+  const page = options.page ?? 0;
+  const totalResults = options.totalResults || settings.totalResults;
+  let totalPages = settings.totalPages;
+  if (totalResults > 0 && options.itemCount) {
+    if (options.itemCount >= 30) totalPages = Math.ceil(totalResults / options.itemCount);
+    else if (totalPages === 0) totalPages = Math.ceil(totalResults / Math.max(1, options.itemCount));
+  }
+  const done = lane === "cycle" && page > 0 && (
+    (options.itemCount === 0) || (totalPages > 0 && page >= totalPages)
+  );
+  const cursorPage = page > 0 && lane === "cycle"
+    ? (done ? 1 : page + 1)
+    : settings.cursorPage;
+
+  if (!dryRun) {
+    await db.saveImportSettings({
+      lastSyncAt: new Date().toISOString(),
+      lastError: null,
+      cursorPage,
+      totalPages,
+      totalResults,
+      totalImported: settings.totalImported + created,
+      totalUpdated: settings.totalUpdated + updated,
+    });
+  }
+
+  return {
+    accepted: listings.length,
+    created,
+    updated,
+    unchanged,
+    images: freshImages,
+    dryRun,
+    done,
+    cursorPage,
+    totalPages,
+    totalResults,
+  };
+}
+
+/** تحلیل HTML ارسالی collector، سپس استفاده از مسیر مشترک ذخیره‌سازی آگهی‌ها. */
+export async function ingestHtmlPage(
+  html: string,
+  options: IngestOptions & { page: number; lane: "fast" | "cycle" }
+): Promise<IngestResult> {
+  const listings = parseDubicarsPage(html);
+  if (!listings.length) throw new IngestError("از HTML ارسالی آگهی قابل‌قبولی پیدا نشد.");
+  const metadata = dubicarsPageMetadata(html);
+  return ingestListings(listings, {
+    ...options,
+    totalResults: metadata.totalResults,
+    itemCount: metadata.itemCount,
+  });
 }

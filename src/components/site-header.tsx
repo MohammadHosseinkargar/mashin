@@ -17,7 +17,7 @@ const LINKS = [
   { href: "/contact", label: "تماس با ما" },
 ];
 
-export function Logo({ title = "ترنم شرق چابهار" }: { title?: string }) {
+export function Logo({ title = "گاراژ" }: { title?: string }) {
   return (
     <Link href="/" className="group flex min-w-0 items-center gap-2.5" aria-label={title}>
       <span className="relative grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-gold to-amber text-[#1a1204] shadow-[0_6px_24px_-6px_rgb(246_189_79/.7)] transition-transform duration-500 group-hover:-rotate-6 group-hover:scale-105">

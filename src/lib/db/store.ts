@@ -78,8 +78,8 @@ export function applyVehicleQuery(all: Vehicle[], q: VehicleQuery = {}): { items
 }
 
 export const DEFAULT_SETTINGS: Omit<SiteSettings, "updatedAt"> = {
-  siteTitle: "ترنم شرق چابهار",
-  siteDescription: "ترنم شرق چابهار؛ واردات خودرو از امارات با قیمت شفاف، حمل مطمئن و پیگیری تا ترخیص، از دروازه‌ی جنوب‌شرق ایران.",
+  siteTitle: "گاراژ",
+  siteDescription: "گاراژ؛ واردات خودرو از امارات با قیمت شفاف، حمل مطمئن و پیگیری تا ترخیص، از دروازه‌ی جنوب‌شرق ایران.",
   whatsappNumber: "",
   whatsappMessage: "سلام، برای مشاوره‌ی خرید خودرو از امارات پیام می‌دهم.",
   contactEmail: "",

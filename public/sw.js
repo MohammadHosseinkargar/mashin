@@ -2,7 +2,7 @@
 
 
 
-const CACHE = "trnm-site-v2";
+const CACHE = "garaj-site-v3";
 const STATIC = [
   "/",
   "/catalog",
@@ -13,7 +13,7 @@ const STATIC = [
   "/icon-512.png",
 ];
 
-async function cacheOk(response: Response): Promise<Response> {
+async function cacheOk(response) {
   const clone = response.clone();
   if (clone.ok) {
     const cache = await caches.open(CACHE);
@@ -54,7 +54,7 @@ self.addEventListener("fetch", (e) => {
         .catch(async () => {
           const cached = await caches.match(req);
           if (cached) return cached;
-          return caches.match("/") as Promise<Response>;
+          return caches.match("/");
         }),
     );
     return;

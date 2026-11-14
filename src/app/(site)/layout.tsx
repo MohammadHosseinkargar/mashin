@@ -4,8 +4,8 @@ import { SiteFooter } from "@/components/site-footer";
 import { db } from "@/lib/db";
 
 export const metadata: Metadata = {
-  title: "ترنم شرق چابهار | واردات خودرو از امارات، از چابهار تا سراسر ایران",
-  description: "خرید و واردات خودرو از امارات با قیمت نهایی شفاف، محاسبه‌ی لحظه‌ای هزینه‌ها و پشتیبانی کامل تا ترخیص؛ از مجموعه‌ی ترنم شرق چابهار.",
+  title: "گاراژ | واردات خودرو از امارات، از چابهار تا سراسر ایران",
+  description: "خرید و واردات خودرو از امارات با قیمت نهایی شفاف، محاسبه‌ی لحظه‌ای هزینه‌ها و پشتیبانی کامل تا ترخیص؛ از مجموعه‌ی گاراژ.",
 };
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
